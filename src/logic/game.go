@@ -1,4 +1,4 @@
-package tntetris
+package logic
 
 import (
 	"bytes"
@@ -40,10 +40,10 @@ func init() {
 }
 
 type Game struct {
-	squares     []Square
-	speed       float32
-	current     int // useless now
-	outOfBounds int
+	Squares     []Square
+	Speed       float32
+	Current     int // useless now
+	OutOfBounds int
 }
 
 type Square struct {
@@ -85,14 +85,14 @@ func (g *Game) CheckCollision(sq1 Square, sq2 Square) bool {
 }
 
 func (g *Game) HandleCollision() {
-	for i := 1; i < len(g.squares); i++ {
-		if g.CheckCollision(g.squares[g.current], g.squares[i]) {
-			g.squares[i].x += (g.squares[i].x - g.squares[g.current].x) * 0.1
-			g.squares[i].y += (g.squares[i].y - g.squares[g.current].y) * 0.1
-			if IsOutBounds(g.squares[i]) {
-				g.outOfBounds++
-				g.squares[i].x += (g.squares[i].x - g.squares[g.current].x) * 3.0
-				g.squares[i].y += (g.squares[i].y - g.squares[g.current].y) * 3.0
+	for i := 1; i < len(g.Squares); i++ {
+		if g.CheckCollision(g.Squares[g.Current], g.Squares[i]) {
+			g.Squares[i].x += (g.Squares[i].x - g.Squares[g.Current].x) * 0.1
+			g.Squares[i].y += (g.Squares[i].y - g.Squares[g.Current].y) * 0.1
+			if IsOutBounds(g.Squares[i]) {
+				g.OutOfBounds++
+				g.Squares[i].x += (g.Squares[i].x - g.Squares[g.Current].x) * 3.0
+				g.Squares[i].y += (g.Squares[i].y - g.Squares[g.Current].y) * 3.0
 			}
 		}
 	}
@@ -107,11 +107,11 @@ func IsInBounds(s Square, newX float32, newY float32) bool {
 }
 
 func (g *Game) Reset() {
-	g.squares = initializeSquares(numSquares)
-	g.outOfBounds = 0
+	g.Squares = InitializeSquares(numSquares)
+	g.OutOfBounds = 0
 }
 
-func initializeSquares(amount int) []Square {
+func InitializeSquares(amount int) []Square {
 	listOfSquares := make([]Square, 0)
 	// that's the player square
 	listOfSquares = append(listOfSquares, Square{screenWidth / 2, screenWidth / 2, 15.0,
@@ -126,23 +126,23 @@ func initializeSquares(amount int) []Square {
 func (g *Game) Update() error {
 	g.HandleCollision()
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
-		if IsInBounds(g.squares[g.current], -g.speed, 0.0) {
-			g.squares[g.current].x += -g.speed
+		if IsInBounds(g.Squares[g.Current], -g.Speed, 0.0) {
+			g.Squares[g.Current].x += -g.Speed
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
-		if IsInBounds(g.squares[g.current], g.speed, 0.0) {
-			g.squares[g.current].x += g.speed
+		if IsInBounds(g.Squares[g.Current], g.Speed, 0.0) {
+			g.Squares[g.Current].x += g.Speed
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
-		if IsInBounds(g.squares[g.current], 0.0, -g.speed) {
-			g.squares[g.current].y += -g.speed
+		if IsInBounds(g.Squares[g.Current], 0.0, -g.Speed) {
+			g.Squares[g.Current].y += -g.Speed
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
-		if IsInBounds(g.squares[g.current], 0.0, g.speed) {
-			g.squares[g.current].y += g.speed
+		if IsInBounds(g.Squares[g.Current], 0.0, g.Speed) {
+			g.Squares[g.Current].y += g.Speed
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
@@ -153,10 +153,10 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawGameLimits(screen)
-	for _, square := range g.squares {
+	for _, square := range g.Squares {
 		square.DrawSquare(screen)
 	}
-	if g.outOfBounds == len(g.squares)-1 {
+	if g.OutOfBounds == len(g.Squares)-1 {
 		g.DrawWinningMessage(screen)
 	}
 }
