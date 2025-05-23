@@ -6,20 +6,15 @@ import (
 	"malacroix/tntetris/logic"
 )
 
-// TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
 const (
-	screenWidth  = 240
-	screenHeight = 240
-	numSquares   = 100
+	screenWidth  = 800
+	screenHeight = 1500
 )
 
 func main() {
-	g := &logic.Game{
-		Squares: logic.InitializeSquares(numSquares), Speed: 1.5, Current: 0, OutOfBounds: 0,
-	}
-	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
-	ebiten.SetWindowTitle("Super Soup")
+	g := &logic.Game{screenWidth, screenHeight}
+	ebiten.SetWindowSize(screenWidth, screenHeight)
+	ebiten.SetWindowTitle("TnTetris on the go!")
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
