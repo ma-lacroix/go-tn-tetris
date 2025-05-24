@@ -4,12 +4,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
+	"math/rand"
+	"time"
 )
 
-const (
-	rows = 20
-	cols = 10
-)
+func RandomPieceIndex() int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(7) + 1
+}
 
 type PlayingArea struct {
 	x0, y0, x1, y1, bx, by float32
@@ -24,7 +26,7 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 	paddingY := float32(ScreenWidth / 10)
 	var grid [rows][cols]bool
 	bp := NewBlockPieces()
-	pp := NewPlayerPiece(bp.GenerateNewPiece(1))
+	pp := NewPlayerPiece(bp.GenerateNewPiece(RandomPieceIndex()))
 	for i := 0; i < 20; i++ {
 		for j := 0; j < 10; j++ {
 			grid[i][j] = true
@@ -54,10 +56,6 @@ func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
 	vector.StrokeLine(screen, p.x0, p.y1, p.x1, p.y1, strokeWidth, borderColor, true)
 	// Right
 	vector.StrokeLine(screen, p.x1, p.y1, p.x1, p.y0, strokeWidth, borderColor, true)
-}
-
-func (p *PlayingArea) Init() {
-
 }
 
 func (p *PlayingArea) Draw(screen *ebiten.Image) {

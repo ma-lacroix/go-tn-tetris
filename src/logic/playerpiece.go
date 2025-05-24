@@ -29,6 +29,37 @@ func (pp *PlayerPiece) Rotation() {
 	}
 }
 
+func (pp *PlayerPiece) DetectPlayingAreaCollision(newPos [4][2]int, col int, row int) bool {
+	minX := 1000
+	maxX := 0
+	minY := 1000
+	maxY := 0
+	for _, block := range newPos {
+		if block[0] < minX {
+			minX = block[0]
+		}
+		if block[1] < minY {
+			minY = block[1]
+		}
+		if block[0] > maxX {
+			maxX = block[0]
+		}
+		if block[1] > maxY {
+			maxY = block[1]
+		}
+	}
+	return minX >= 0 && minY >= 0 && maxX < col && maxY < row
+}
+
+func (pp *PlayerPiece) CollisionDetection(newMove [2]int, col int, row int) bool {
+	var moved [4][2]int
+	for i, pos := range pp.position {
+		moved[i][0] = pos[0] + newMove[0]
+		moved[i][1] = pos[1] + newMove[1]
+	}
+	return pp.DetectPlayingAreaCollision(moved, col, row)
+}
+
 func (pp *PlayerPiece) UpdatePlayerPiece(newMove [2]int) {
 	for i := range pp.position {
 		pp.position[i][0] += newMove[0]

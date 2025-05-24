@@ -10,6 +10,7 @@ const (
 	TetronimoType4
 	TetronimoType5
 	TetronimoType6
+	TetronimoType7
 )
 
 type BlockPieces struct {
@@ -20,7 +21,25 @@ func NewBlockPieces() *BlockPieces {
 	return &BlockPieces{
 		Pieces: map[TetronimoType]*[4][2]int{
 			TetronimoType1: &([4][2]int{
-				{4, 1}, {5, 1}, {5, 2}, {5, 3}, // rotation 0
+				{4, 1}, {5, 1}, {5, 2}, {5, 3}, // L 1
+			}),
+			TetronimoType2: &([4][2]int{
+				{6, 1}, {5, 1}, {5, 2}, {5, 3}, // L 2
+			}),
+			TetronimoType3: &([4][2]int{
+				{4, 1}, {5, 1}, {4, 2}, {5, 2}, // Cube
+			}),
+			TetronimoType4: &([4][2]int{
+				{4, 1}, {5, 1}, {6, 1}, {5, 2}, // T
+			}),
+			TetronimoType5: &([4][2]int{
+				{4, 2}, {5, 2}, {5, 1}, {6, 1}, // S 1
+			}),
+			TetronimoType6: &([4][2]int{
+				{4, 1}, {5, 1}, {5, 2}, {6, 2}, // S 2
+			}),
+			TetronimoType7: &([4][2]int{
+				{3, 1}, {4, 1}, {5, 1}, {6, 1}, // Line
 			}),
 		},
 	}

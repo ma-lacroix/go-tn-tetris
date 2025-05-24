@@ -5,6 +5,11 @@ import (
 	"image/color"
 )
 
+const (
+	rows = 20
+	cols = 10
+)
+
 type Game struct {
 	ScreenWidth     int
 	ScreenHeight    int
@@ -27,6 +32,9 @@ func NewGame(width, height int) *Game {
 }
 
 func (g *Game) Reset() {
+	g.FallenBlocks = NewFallenBlocks()
+	g.NextPieceArea = NewNextPieceArea()
+	g.PlayingArea = NewPlayingArea(g.ScreenWidth, g.ScreenHeight)
 }
 
 func (g *Game) Update() error {
@@ -36,6 +44,9 @@ func (g *Game) Update() error {
 	}
 	move := [2]int{0, 0}
 	rotate := false
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		g.Reset()
+	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
 		move[0] = -1
 	}
@@ -56,7 +67,9 @@ func (g *Game) Update() error {
 		g.moveCooldown = g.moveCooldownMax
 	}
 	if move != [2]int{0, 0} {
-		g.PlayingArea.playerPiece.UpdatePlayerPiece(move)
+		if g.PlayingArea.playerPiece.CollisionDetection(move, cols, rows) {
+			g.PlayingArea.playerPiece.UpdatePlayerPiece(move)
+		}
 		g.moveCooldown = g.moveCooldownMax
 	}
 	return nil
