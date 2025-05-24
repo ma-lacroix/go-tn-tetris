@@ -35,6 +35,7 @@ func (g *Game) Update() error {
 		return nil
 	}
 	move := [2]int{0, 0}
+	rotate := false
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
 		move[0] = -1
 	}
@@ -47,8 +48,15 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
 		move[1] = 1
 	}
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		rotate = true
+	}
+	if rotate {
+		g.PlayingArea.playerPiece.Rotation()
+		g.moveCooldown = g.moveCooldownMax
+	}
 	if move != [2]int{0, 0} {
-		g.PlayingArea.UpdatePlayerPiece(move)
+		g.PlayingArea.playerPiece.UpdatePlayerPiece(move)
 		g.moveCooldown = g.moveCooldownMax
 	}
 	return nil
