@@ -11,25 +11,14 @@ type PlayerPiece struct {
 	color    color.Color
 }
 
-func NewPlayerPiece(tetronimo *[4][2]int) *PlayerPiece {
+func NewPlayerPiece(tetronimo *[4][2]int, colorValues [3]int) *PlayerPiece {
 	return &PlayerPiece{
 		position: tetronimo,
-		color:    color.RGBA{255, 0, 0, 255},
+		color:    color.RGBA{uint8(colorValues[0]), uint8(colorValues[1]), uint8(colorValues[2]), 255},
 	}
 }
 
-func (pp *PlayerPiece) Rotation() {
-	origin := pp.position[0]
-
-	for i, block := range pp.position {
-		dx := block[0] - origin[0]
-		dy := block[1] - origin[1]
-		pp.position[i][0] = origin[0] + dy
-		pp.position[i][1] = origin[1] - dx
-	}
-}
-
-func (pp *PlayerPiece) DetectPlayingAreaCollision(newPos [4][2]int, col int, row int) bool {
+func GetPieceMinMaxValues(newPos [4][2]int) [4]int {
 	minX := 1000
 	maxX := 0
 	minY := 1000
@@ -48,7 +37,48 @@ func (pp *PlayerPiece) DetectPlayingAreaCollision(newPos [4][2]int, col int, row
 			maxY = block[1]
 		}
 	}
-	return minX >= 0 && minY >= 0 && maxX < col && maxY < row
+	return [4]int{minX, minY, maxX, maxY}
+}
+
+func (pp *PlayerPiece) Rotation(col int, row int) {
+	origin := pp.position[0]
+
+	for i, block := range pp.position {
+		dx := block[0] - origin[0]
+		dy := block[1] - origin[1]
+		pp.position[i][0] = origin[0] + dy
+		pp.position[i][1] = origin[1] - dx
+	}
+	pp.AdjustRotationPosition(col, row)
+}
+
+func (pp *PlayerPiece) AdjustRotationPosition(col int, row int) {
+	pos := *pp.position
+	minMaxValues := GetPieceMinMaxValues(pos)
+	move := [2]int{0, 0}
+	if minMaxValues[0] < 0 {
+		move[0] = 0 - minMaxValues[0]
+	}
+	if minMaxValues[1] < 0 {
+		move[1] = 0 - minMaxValues[1]
+	}
+	if minMaxValues[2] > col {
+		move[0] = col - minMaxValues[2] - 1
+	}
+	if minMaxValues[3] > row {
+		move[1] = row - minMaxValues[3] - 1
+	}
+	pp.UpdatePlayerPiece(move)
+}
+
+func (pp *PlayerPiece) DetectPlayingAreaCollision(newPos [4][2]int, col int, row int) bool {
+	minMaxValues := GetPieceMinMaxValues(newPos)
+	return minMaxValues[0] >= 0 && minMaxValues[1] >= 0 && minMaxValues[2] < col && minMaxValues[3] < row
+}
+
+func (pp *PlayerPiece) DetectFallenPiecesCollision(newPos [4][2]int, col int, row int) bool {
+	// TODO
+	return true
 }
 
 func (pp *PlayerPiece) CollisionDetection(newMove [2]int, col int, row int) bool {
@@ -57,7 +87,7 @@ func (pp *PlayerPiece) CollisionDetection(newMove [2]int, col int, row int) bool
 		moved[i][0] = pos[0] + newMove[0]
 		moved[i][1] = pos[1] + newMove[1]
 	}
-	return pp.DetectPlayingAreaCollision(moved, col, row)
+	return pp.DetectPlayingAreaCollision(moved, col, row) && pp.DetectFallenPiecesCollision(moved, col, row)
 }
 
 func (pp *PlayerPiece) UpdatePlayerPiece(newMove [2]int) {

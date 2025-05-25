@@ -13,6 +13,12 @@ func RandomPieceIndex() int {
 	return rand.Intn(7) + 1
 }
 
+func RandomPieceColorIndex() [3]int {
+	rand.Seed(time.Now().UnixNano())
+	colorValues := [3]int{rand.Intn(255) + 1, rand.Intn(255) + 1, rand.Intn(255) + 1}
+	return colorValues
+}
+
 type PlayingArea struct {
 	x0, y0, x1, y1, bx, by float32
 	board                  [20][10]bool
@@ -26,7 +32,7 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 	paddingY := float32(ScreenWidth / 10)
 	var grid [rows][cols]bool
 	bp := NewBlockPieces()
-	pp := NewPlayerPiece(bp.GenerateNewPiece(RandomPieceIndex()))
+	pp := NewPlayerPiece(bp.GenerateNewPiece(RandomPieceIndex()), RandomPieceColorIndex())
 	for i := 0; i < 20; i++ {
 		for j := 0; j < 10; j++ {
 			grid[i][j] = true

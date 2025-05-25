@@ -63,7 +63,7 @@ func (g *Game) Update() error {
 		rotate = true
 	}
 	if rotate {
-		g.PlayingArea.playerPiece.Rotation()
+		g.PlayingArea.playerPiece.Rotation(cols, rows)
 		g.moveCooldown = g.moveCooldownMax
 	}
 	if move != [2]int{0, 0} {
