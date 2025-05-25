@@ -3,6 +3,7 @@ package logic
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
+	"time"
 )
 
 const (
@@ -13,7 +14,6 @@ const (
 type Game struct {
 	ScreenWidth     int
 	ScreenHeight    int
-	FallenBlocks    *FallenBlocks
 	NextPieceArea   *NextPieceArea
 	PlayingArea     *PlayingArea
 	moveCooldown    int
@@ -24,7 +24,6 @@ func NewGame(width, height int) *Game {
 	return &Game{
 		ScreenWidth:     width,
 		ScreenHeight:    height,
-		FallenBlocks:    NewFallenBlocks(),
 		NextPieceArea:   NewNextPieceArea(),
 		PlayingArea:     NewPlayingArea(width, height),
 		moveCooldownMax: 10,
@@ -32,7 +31,6 @@ func NewGame(width, height int) *Game {
 }
 
 func (g *Game) Reset() {
-	g.FallenBlocks = NewFallenBlocks()
 	g.NextPieceArea = NewNextPieceArea()
 	g.PlayingArea = NewPlayingArea(g.ScreenWidth, g.ScreenHeight)
 }
@@ -43,9 +41,9 @@ func (g *Game) Update() error {
 		return nil
 	}
 	move := [2]int{0, 0}
-	rotate := false
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
 		g.Reset()
+		g.moveCooldown = g.moveCooldownMax
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
 		move[0] = -1
@@ -60,17 +58,17 @@ func (g *Game) Update() error {
 		move[1] = 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		rotate = true
-	}
-	if rotate {
 		g.PlayingArea.playerPiece.Rotation(cols, rows)
 		g.moveCooldown = g.moveCooldownMax
 	}
 	if move != [2]int{0, 0} {
-		if g.PlayingArea.playerPiece.CollisionDetection(move, cols, rows) {
+		if g.PlayingArea.playerPiece.CollisionDetection(move, cols, rows, &g.PlayingArea.board) {
 			g.PlayingArea.playerPiece.UpdatePlayerPiece(move)
 		}
 		g.moveCooldown = g.moveCooldownMax
+	}
+	if g.PlayingArea.playerPiece.ShouldLock(rows, 500*time.Millisecond, &g.PlayingArea.board) {
+		g.PlayingArea.ResetPlayerPiece()
 	}
 	return nil
 }

@@ -24,6 +24,12 @@ type PlayingArea struct {
 	board                  [20][10]bool
 	blockPieces            *BlockPieces
 	playerPiece            *PlayerPiece
+	fallenblocks           []FallenBlock
+}
+
+type FallenBlock struct {
+	x0, y0, bx, by float32
+	color          color.Color
 }
 
 func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
@@ -33,21 +39,57 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 	var grid [rows][cols]bool
 	bp := NewBlockPieces()
 	pp := NewPlayerPiece(bp.GenerateNewPiece(RandomPieceIndex()), RandomPieceColorIndex())
-	for i := 0; i < 20; i++ {
-		for j := 0; j < 10; j++ {
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
 			grid[i][j] = true
 		}
 	}
 	return &PlayingArea{
-		x0:          paddingX - offSet*1.2,
-		y0:          paddingY + offSet*4,
-		x1:          float32(ScreenWidth) - paddingX - offSet*1.5,
-		y1:          float32(ScreenHeight) - paddingY + offSet*0.4,
-		bx:          ((float32(ScreenWidth) - paddingX - offSet*1.5) - (paddingX - offSet*1.2)) / cols,
-		by:          ((float32(ScreenHeight) - paddingY + offSet*0.4) - (paddingY + offSet*4)) / rows,
-		board:       grid,
-		blockPieces: bp,
-		playerPiece: pp,
+		x0:           paddingX - offSet*1.2,
+		y0:           paddingY + offSet*4,
+		x1:           float32(ScreenWidth) - paddingX - offSet*1.5,
+		y1:           float32(ScreenHeight) - paddingY + offSet*0.4,
+		bx:           ((float32(ScreenWidth) - paddingX - offSet*1.5) - (paddingX - offSet*1.2)) / cols,
+		by:           ((float32(ScreenHeight) - paddingY + offSet*0.4) - (paddingY + offSet*4)) / rows,
+		board:        grid,
+		blockPieces:  bp,
+		playerPiece:  pp,
+		fallenblocks: []FallenBlock{},
+	}
+}
+
+func (p *PlayingArea) UpdateBoard() {
+	for _, pos := range p.playerPiece.position {
+		p.board[pos[1]][pos[0]] = false
+	}
+}
+
+func (p *PlayingArea) UpdateBlocks() {
+	for _, pos := range p.playerPiece.position {
+		p.fallenblocks = append(p.fallenblocks, FallenBlock{
+			float32(pos[0])*p.bx + p.x0,
+			float32(pos[1])*p.by + p.y0,
+			p.bx,
+			p.by,
+			p.playerPiece.color,
+		})
+	}
+}
+
+func (p *PlayingArea) ResetPlayerPiece() {
+	p.UpdateBoard()
+	p.UpdateBlocks()
+	pieceIndex := RandomPieceIndex()
+	colorIndex := RandomPieceColorIndex()
+	p.playerPiece = NewPlayerPiece(
+		p.blockPieces.GenerateNewPiece(pieceIndex),
+		colorIndex,
+	)
+}
+
+func (p *PlayingArea) DrawFallenBlocks(screen *ebiten.Image) {
+	for _, block := range p.fallenblocks {
+		vector.DrawFilledRect(screen, block.x0, block.y0, block.bx, block.by, block.color, true)
 	}
 }
 
@@ -66,7 +108,8 @@ func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
 
 func (p *PlayingArea) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, p.x0, p.y0, p.x1-p.x0, p.y1-p.y0,
-		color.RGBA{200, 200, 150, 0xFF}, false)
+		color.RGBA{240, 240, 245, 0xFF}, false)
 	p.DrawBorders(screen)
 	p.playerPiece.Draw(screen, p)
+	p.DrawFallenBlocks(screen)
 }
