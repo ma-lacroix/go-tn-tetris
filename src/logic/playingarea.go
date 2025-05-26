@@ -4,6 +4,7 @@ package logic
 // fallen blocks, player piece and blocks generation
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
@@ -57,10 +58,33 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 	}
 }
 
+func countFalseValues(row [cols]bool) int {
+	count := 0
+	for _, v := range row {
+		if !v {
+			count++
+		}
+	}
+	return count
+}
+
+func (p *PlayingArea) freeUpRow() {
+	// TODO: handle the block slots that are above the top level
+	for i := 0; i < rows; i++ {
+		if countFalseValues(p.board[i]) == cols {
+			fmt.Printf("Row %i is complete\n", i)
+			for j := range p.board[i] {
+				p.board[i][j] = true
+			}
+		}
+	}
+}
+
 func (p *PlayingArea) UpdateBoard() {
 	for _, pos := range p.playerPiece.position {
 		p.board[pos[1]][pos[0]] = false
 	}
+	p.freeUpRow()
 }
 
 func (p *PlayingArea) ResetPlayerPiece() {

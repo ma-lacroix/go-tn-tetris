@@ -28,7 +28,7 @@ func NewGame(width, height int) *Game {
 		ScreenHeight:    height,
 		NextPieceArea:   NewNextPieceArea(),
 		PlayingArea:     NewPlayingArea(width, height),
-		moveCooldownMax: 10,
+		moveCooldownMax: 5,
 	}
 }
 

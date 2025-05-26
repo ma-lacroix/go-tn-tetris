@@ -32,6 +32,54 @@ func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, areaCoordinates [4]floa
 			color,
 		})
 	}
+	rowsToRemove := f.findCompleteRows()
+	if len(rowsToRemove) > 0 {
+		minKeyValue := findMinKeyValue(rowsToRemove)
+		f.removeCompleteRows(rowsToRemove)
+		f.moveBlocksDownwards(minKeyValue, len(rowsToRemove), areaCoordinates[3])
+	}
+}
+
+func findMinKeyValue(rowsToRemove map[float32]bool) float32 {
+	var minKeyValue float32
+	first := true
+	for k := range rowsToRemove {
+		if first || k < minKeyValue {
+			minKeyValue = k
+			first = false
+		}
+	}
+	return minKeyValue
+}
+
+func (f *FallenBlocks) moveBlocksDownwards(minRowValue float32, numDrops int, blockSize float32) {
+	for i := range f.fallenBlocks {
+		if f.fallenBlocks[i].y0 < minRowValue {
+			f.fallenBlocks[i].y0 += blockSize * float32(numDrops)
+		}
+	}
+}
+
+func (f *FallenBlocks) removeCompleteRows(rowsToDelete map[float32]bool) {
+	newBlocks := make([]FallenBlock, 0, len(f.fallenBlocks))
+	for _, block := range f.fallenBlocks {
+		if !rowsToDelete[block.y0] {
+			newBlocks = append(newBlocks, block)
+		}
+	}
+	f.fallenBlocks = newBlocks
+}
+
+func (f *FallenBlocks) findCompleteRows() map[float32]bool {
+	rowsToDelete := make(map[float32]bool)
+	inv := make(map[float32]int)
+	for _, block := range f.fallenBlocks {
+		inv[block.y0]++
+		if inv[block.y0] == cols {
+			rowsToDelete[block.y0] = true
+		}
+	}
+	return rowsToDelete
 }
 
 func (f *FallenBlocks) Draw(screen *ebiten.Image) {
