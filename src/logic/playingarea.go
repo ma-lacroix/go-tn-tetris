@@ -24,12 +24,7 @@ type PlayingArea struct {
 	board                  [20][10]bool
 	blockPieces            *BlockPieces
 	playerPiece            *PlayerPiece
-	fallenblocks           []FallenBlock
-}
-
-type FallenBlock struct {
-	x0, y0, bx, by float32
-	color          color.Color
+	fallenBlocks           *FallenBlocks
 }
 
 func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
@@ -39,6 +34,7 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 	var grid [rows][cols]bool
 	bp := NewBlockPieces()
 	pp := NewPlayerPiece(bp.GenerateNewPiece(RandomPieceIndex()), RandomPieceColorIndex())
+	fb := NewFallenBlocks()
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j++ {
 			grid[i][j] = true
@@ -54,7 +50,7 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 		board:        grid,
 		blockPieces:  bp,
 		playerPiece:  pp,
-		fallenblocks: []FallenBlock{},
+		fallenBlocks: fb,
 	}
 }
 
@@ -64,33 +60,15 @@ func (p *PlayingArea) UpdateBoard() {
 	}
 }
 
-func (p *PlayingArea) UpdateBlocks() {
-	for _, pos := range p.playerPiece.position {
-		p.fallenblocks = append(p.fallenblocks, FallenBlock{
-			float32(pos[0])*p.bx + p.x0,
-			float32(pos[1])*p.by + p.y0,
-			p.bx,
-			p.by,
-			p.playerPiece.color,
-		})
-	}
-}
-
 func (p *PlayingArea) ResetPlayerPiece() {
 	p.UpdateBoard()
-	p.UpdateBlocks()
+	p.fallenBlocks.UpdateBlocks(p.playerPiece.position, [4]float32{p.x0, p.y0, p.bx, p.by}, p.playerPiece.color)
 	pieceIndex := RandomPieceIndex()
 	colorIndex := RandomPieceColorIndex()
 	p.playerPiece = NewPlayerPiece(
 		p.blockPieces.GenerateNewPiece(pieceIndex),
 		colorIndex,
 	)
-}
-
-func (p *PlayingArea) DrawFallenBlocks(screen *ebiten.Image) {
-	for _, block := range p.fallenblocks {
-		vector.DrawFilledRect(screen, block.x0, block.y0, block.bx, block.by, block.color, true)
-	}
 }
 
 func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
@@ -111,5 +89,5 @@ func (p *PlayingArea) Draw(screen *ebiten.Image) {
 		color.RGBA{240, 240, 245, 0xFF}, false)
 	p.DrawBorders(screen)
 	p.playerPiece.Draw(screen, p)
-	p.DrawFallenBlocks(screen)
+	p.fallenBlocks.Draw(screen)
 }
