@@ -4,7 +4,6 @@ package logic
 // fallen blocks, player piece and blocks generation
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
@@ -58,7 +57,17 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 	}
 }
 
-func countFalseValues(row [cols]bool) int {
+func (p *PlayingArea) clearFullRowsAndShiftDown() {
+	for row := rows - 1; row >= 0; row-- {
+		if countFilledCells(p.board[row][:]) == cols {
+			p.clearRow(row)
+			p.shiftRowsDown(row)
+			row++
+		}
+	}
+}
+
+func countFilledCells(row []bool) int {
 	count := 0
 	for _, v := range row {
 		if !v {
@@ -68,15 +77,18 @@ func countFalseValues(row [cols]bool) int {
 	return count
 }
 
-func (p *PlayingArea) freeUpRow() {
-	// TODO: handle the block slots that are above the top level
-	for i := 0; i < rows; i++ {
-		if countFalseValues(p.board[i]) == cols {
-			fmt.Printf("Row %i is complete\n", i)
-			for j := range p.board[i] {
-				p.board[i][j] = true
-			}
-		}
+func (p *PlayingArea) clearRow(row int) {
+	for col := 0; col < cols; col++ {
+		p.board[row][col] = true
+	}
+}
+
+func (p *PlayingArea) shiftRowsDown(startRow int) {
+	for row := startRow; row > 0; row-- {
+		p.board[row] = p.board[row-1]
+	}
+	for col := 0; col < cols; col++ {
+		p.board[0][col] = true
 	}
 }
 
@@ -84,7 +96,7 @@ func (p *PlayingArea) UpdateBoard() {
 	for _, pos := range p.playerPiece.position {
 		p.board[pos[1]][pos[0]] = false
 	}
-	p.freeUpRow()
+	p.clearFullRowsAndShiftDown()
 }
 
 func (p *PlayingArea) ResetPlayerPiece() {
