@@ -24,7 +24,7 @@ func RandomPieceColorIndex() [3]int {
 
 type PlayingArea struct {
 	x0, y0, x1, y1, bx, by float32
-	board                  [20][10]bool
+	board                  [rows][cols]bool
 	blockPieces            *BlockPieces
 	playerPiece            *PlayerPiece
 	fallenBlocks           *FallenBlocks

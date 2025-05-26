@@ -23,10 +23,8 @@ func NewPlayerPiece(tetronimo [4][2]int, colorValues [3]int) *PlayerPiece {
 }
 
 func GetPieceMinMaxValues(newPos [4][2]int) [4]int {
-	minX := 1000
-	maxX := 0
-	minY := 1000
-	maxY := 0
+	minX, minY := 1000, 1000
+	maxX, maxY := 0, 0
 	for _, block := range newPos {
 		if block[0] < minX {
 			minX = block[0]

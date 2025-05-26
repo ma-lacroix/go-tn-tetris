@@ -20,6 +20,8 @@ type Game struct {
 	PlayingArea     *PlayingArea
 	moveCooldown    int
 	moveCooldownMax int
+	lastDropTime    time.Time
+	dropInterval    time.Duration
 }
 
 func NewGame(width, height int) *Game {
@@ -28,7 +30,8 @@ func NewGame(width, height int) *Game {
 		ScreenHeight:    height,
 		NextPieceArea:   NewNextPieceArea(),
 		PlayingArea:     NewPlayingArea(width, height),
-		moveCooldownMax: 5,
+		moveCooldownMax: 10,
+		dropInterval:    1000 * time.Millisecond,
 	}
 }
 
@@ -38,9 +41,17 @@ func (g *Game) Reset() {
 }
 
 func (g *Game) Update() error {
+	down := false
 	if g.moveCooldown > 0 {
 		g.moveCooldown--
 		return nil
+	}
+	if time.Since(g.lastDropTime) > g.dropInterval {
+		down := [2]int{0, 1}
+		if g.PlayingArea.playerPiece.CollisionDetection(down, cols, rows, &g.PlayingArea.board) {
+			g.PlayingArea.playerPiece.UpdatePlayerPiece(down)
+		}
+		g.lastDropTime = time.Now()
 	}
 	move := [2]int{0, 0}
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
@@ -58,6 +69,7 @@ func (g *Game) Update() error {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
 		move[1] = 1
+		down = true
 	}
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		g.PlayingArea.playerPiece.Rotation(cols, rows)
@@ -67,7 +79,12 @@ func (g *Game) Update() error {
 		if g.PlayingArea.playerPiece.CollisionDetection(move, cols, rows, &g.PlayingArea.board) {
 			g.PlayingArea.playerPiece.UpdatePlayerPiece(move)
 		}
-		g.moveCooldown = g.moveCooldownMax
+		if down {
+			g.moveCooldown = g.moveCooldownMax / 10
+			down = false
+		} else {
+			g.moveCooldown = g.moveCooldownMax
+		}
 	}
 	if g.PlayingArea.playerPiece.ShouldLock(rows, 500*time.Millisecond, &g.PlayingArea.board) {
 		g.PlayingArea.ResetPlayerPiece()
