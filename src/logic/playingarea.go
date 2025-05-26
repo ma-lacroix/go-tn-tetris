@@ -1,5 +1,8 @@
 package logic
 
+// This source file holds all the instructions related to the playing area, including calling all methods related to the
+// fallen blocks, player piece and blocks generation
+
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -84,9 +87,13 @@ func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
 	vector.StrokeLine(screen, p.x1, p.y1, p.x1, p.y0, strokeWidth, borderColor, true)
 }
 
-func (p *PlayingArea) Draw(screen *ebiten.Image) {
+func (p *PlayingArea) DrawBackground(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, p.x0, p.y0, p.x1-p.x0, p.y1-p.y0,
 		color.RGBA{240, 240, 245, 0xFF}, false)
+}
+
+func (p *PlayingArea) Draw(screen *ebiten.Image) {
+	p.DrawBackground(screen)
 	p.DrawBorders(screen)
 	p.playerPiece.Draw(screen, p)
 	p.fallenBlocks.Draw(screen)

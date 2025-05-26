@@ -1,5 +1,7 @@
 package logic
 
+// This file contains the instructions related to the Player's active Tetronimo
+
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"

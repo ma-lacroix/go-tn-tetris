@@ -1,5 +1,8 @@
 package logic
 
+// This source file contains the instructions related to Tetronimo blocks that are at the bottom of the playing area:
+// holding them in memory, detecting complete lines, removing complete lines and handling the animations
+
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"

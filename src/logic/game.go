@@ -1,5 +1,7 @@
 package logic
 
+// This source file handles the main game loop and user input
+
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"

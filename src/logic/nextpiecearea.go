@@ -1,5 +1,7 @@
 package logic
 
+// This file contains the instructions related to the displaying of the upcoming Tetromino
+
 type NextPieceArea struct {
 }
 

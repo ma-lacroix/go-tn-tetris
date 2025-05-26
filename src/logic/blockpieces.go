@@ -1,5 +1,7 @@
 package logic
 
+// This file contains the instructions related to the creation of a new Tetronimo
+
 type TetronimoType int
 
 const (
