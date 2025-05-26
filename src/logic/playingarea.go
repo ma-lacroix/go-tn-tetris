@@ -11,11 +11,6 @@ import (
 	"time"
 )
 
-func RandomPieceIndex() int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(7) + 1
-}
-
 func RandomPieceColorIndex() [3]int {
 	rand.Seed(time.Now().UnixNano())
 	colorValues := [3]int{rand.Intn(255) + 1, rand.Intn(255) + 1, rand.Intn(255) + 1}
@@ -99,10 +94,9 @@ func (p *PlayingArea) UpdateBoard() {
 	p.clearFullRowsAndShiftDown()
 }
 
-func (p *PlayingArea) ResetPlayerPiece() {
+func (p *PlayingArea) ResetPlayerPiece(pieceIndex int) {
 	p.UpdateBoard()
 	p.fallenBlocks.UpdateBlocks(p.playerPiece.position, [4]float32{p.x0, p.y0, p.bx, p.by}, p.playerPiece.color)
-	pieceIndex := RandomPieceIndex()
 	colorIndex := RandomPieceColorIndex()
 	p.playerPiece = NewPlayerPiece(
 		p.blockPieces.GenerateNewPiece(pieceIndex),
