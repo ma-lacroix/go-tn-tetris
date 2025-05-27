@@ -127,4 +127,5 @@ func (p *PlayingArea) Draw(screen *ebiten.Image) {
 	p.DrawBorders(screen)
 	p.playerPiece.Draw(screen, p)
 	p.fallenBlocks.Draw(screen)
+	p.fallenBlocks.DrawExplodingBlocks(screen)
 }

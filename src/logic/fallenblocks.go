@@ -7,22 +7,45 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
+	"math"
+	"math/rand"
+	"time"
+)
+
+const (
+	amplitudeY = 60.0
+	amplitudeX = 5.0
 )
 
 type FallenBlock struct {
 	x0, y0, bx, by float32
 	color          color.Color
+	alpha          float32
+	direction      float32
 }
 
 type FallenBlocks struct {
-	fallenBlocks []FallenBlock
+	fallenBlocks    []FallenBlock
+	blocksToAnimate []FallenBlock
 }
 
 func NewFallenBlocks() *FallenBlocks {
 	return &FallenBlocks{}
 }
 
+func Randomizer() float32 {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Float32()
+}
+
 func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, areaCoordinates [4]float32, color color.Color) {
+	var direction float32
+	alpha := Randomizer()
+	if alpha < 0.5 {
+		direction = 1
+	} else {
+		direction = -1
+	}
 	for _, pos := range playerPos {
 		f.fallenBlocks = append(f.fallenBlocks, FallenBlock{
 			float32(pos[0])*areaCoordinates[2] + areaCoordinates[0],
@@ -30,6 +53,8 @@ func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, areaCoordinates [4]floa
 			areaCoordinates[2],
 			areaCoordinates[3],
 			color,
+			Randomizer(),
+			direction,
 		})
 	}
 	rowsToRemove := f.findCompleteRows()
@@ -62,12 +87,16 @@ func (f *FallenBlocks) moveBlocksDownwards(minRowValue float32, numDrops int, bl
 
 func (f *FallenBlocks) removeCompleteRows(rowsToDelete map[float32]bool) {
 	newBlocks := make([]FallenBlock, 0, len(f.fallenBlocks))
+	newBlocksToAnimate := make([]FallenBlock, 0, len(f.blocksToAnimate))
 	for _, block := range f.fallenBlocks {
 		if !rowsToDelete[block.y0] {
 			newBlocks = append(newBlocks, block)
+		} else {
+			newBlocksToAnimate = append(newBlocksToAnimate, block)
 		}
 	}
 	f.fallenBlocks = newBlocks
+	f.blocksToAnimate = newBlocksToAnimate
 }
 
 func (f *FallenBlocks) findCompleteRows() map[float32]bool {
@@ -80,6 +109,35 @@ func (f *FallenBlocks) findCompleteRows() map[float32]bool {
 		}
 	}
 	return rowsToDelete
+}
+
+func (f *FallenBlocks) removeOutOfBoundBlocks() {
+	newBlocksToAnimate := make([]FallenBlock, 0, len(f.blocksToAnimate))
+	for _, block := range f.blocksToAnimate {
+		if block.y0 < 1000 {
+			newBlocksToAnimate = append(newBlocksToAnimate, block)
+		}
+	}
+	f.blocksToAnimate = newBlocksToAnimate
+}
+
+func (f *FallenBlocks) MoveExplodingBlocks() {
+	f.removeOutOfBoundBlocks()
+	if len(f.blocksToAnimate) != 0 {
+		for i, _ := range f.blocksToAnimate {
+			f.blocksToAnimate[i].alpha += 0.05
+			f.blocksToAnimate[i].x0 += float32(amplitudeX*math.Cos(float64(f.blocksToAnimate[i].alpha))) * f.blocksToAnimate[i].direction
+			f.blocksToAnimate[i].y0 += float32(amplitudeY * math.Sin(float64(f.blocksToAnimate[i].alpha)))
+		}
+	}
+}
+
+func (f *FallenBlocks) DrawExplodingBlocks(screen *ebiten.Image) {
+	if len(f.blocksToAnimate) != 0 {
+		for _, block := range f.blocksToAnimate {
+			vector.DrawFilledRect(screen, block.x0, block.y0, block.bx, block.by, block.color, true)
+		}
+	}
 }
 
 func (f *FallenBlocks) Draw(screen *ebiten.Image) {

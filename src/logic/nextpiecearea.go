@@ -1,12 +1,12 @@
 package logic
 
+// This file contains the instructions related to the displaying of the upcoming Tetromino
+
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
 )
-
-// This file contains the instructions related to the displaying of the upcoming Tetromino
 
 type NextPieceArea struct {
 	x0, y0, x1, y1, bx, by float32

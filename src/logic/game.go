@@ -15,27 +15,30 @@ const (
 )
 
 type Game struct {
-	ScreenWidth     int
-	ScreenHeight    int
-	NextPieceArea   *NextPieceArea
-	NextPieceIndex  int
-	PlayingArea     *PlayingArea
-	moveCooldown    int
-	moveCooldownMax int
-	lastDropTime    time.Time
-	dropInterval    time.Duration
+	ScreenWidth       int
+	ScreenHeight      int
+	NextPieceArea     *NextPieceArea
+	NextPieceIndex    int
+	PlayingArea       *PlayingArea
+	moveCooldown      int
+	moveCooldownMax   int
+	lastDropTime      time.Time
+	dropInterval      time.Duration
+	animationTime     time.Time
+	animationInterval time.Duration
 }
 
 func NewGame(width, height int) *Game {
 	nextPieceIndex := RandomPieceIndex()
 	return &Game{
-		ScreenWidth:     width,
-		ScreenHeight:    height,
-		NextPieceArea:   NewNextPieceArea(nextPieceIndex, width, height),
-		NextPieceIndex:  nextPieceIndex,
-		PlayingArea:     NewPlayingArea(width, height),
-		moveCooldownMax: 10,
-		dropInterval:    1000 * time.Millisecond,
+		ScreenWidth:       width,
+		ScreenHeight:      height,
+		NextPieceArea:     NewNextPieceArea(nextPieceIndex, width, height),
+		NextPieceIndex:    nextPieceIndex,
+		PlayingArea:       NewPlayingArea(width, height),
+		moveCooldownMax:   10,
+		dropInterval:      1000 * time.Millisecond,
+		animationInterval: 10 * time.Millisecond,
 	}
 }
 
@@ -62,6 +65,10 @@ func (g *Game) Update() error {
 			g.PlayingArea.playerPiece.UpdatePlayerPiece(down)
 		}
 		g.lastDropTime = time.Now()
+	}
+	if time.Since(g.animationTime) > g.animationInterval {
+		g.PlayingArea.fallenBlocks.MoveExplodingBlocks()
+		g.animationTime = time.Now()
 	}
 	move := [2]int{0, 0}
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
