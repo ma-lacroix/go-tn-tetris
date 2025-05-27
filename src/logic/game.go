@@ -3,6 +3,7 @@ package logic
 // This source file handles the main game loop and user input
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
 	"math/rand"
@@ -17,6 +18,7 @@ const (
 type Game struct {
 	ScreenWidth       int
 	ScreenHeight      int
+	Menu              *Menu
 	NextPieceArea     *NextPieceArea
 	NextPieceIndex    int
 	PlayingArea       *PlayingArea
@@ -33,6 +35,7 @@ func NewGame(width, height int) *Game {
 	return &Game{
 		ScreenWidth:       width,
 		ScreenHeight:      height,
+		Menu:              NewMenu(),
 		NextPieceArea:     NewNextPieceArea(nextPieceIndex, width, height),
 		NextPieceIndex:    nextPieceIndex,
 		PlayingArea:       NewPlayingArea(width, height),
@@ -53,11 +56,44 @@ func RandomPieceIndex() int {
 	return rand.Intn(7) + 1
 }
 
-func (g *Game) Update() error {
+func (g *Game) HandleMenuInput() {
+	if g.moveCooldown > 0 {
+		g.moveCooldown--
+		return
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+		selected--
+		if selected < 0 {
+			selected = len(menuOptions) - 1
+		}
+		g.moveCooldown = g.moveCooldownMax
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+		selected++
+		if selected >= len(menuOptions) {
+			selected = 0
+		}
+		g.moveCooldown = g.moveCooldownMax
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+		switch selected {
+		case 0:
+			fmt.Println("Starting game...")
+			g.Menu.isActive = false
+		case 1:
+			fmt.Println("Options selected")
+		case 2:
+			fmt.Println("Quitting...")
+		}
+	}
+
+}
+
+func (g *Game) HandleMainGameInput() {
 	down := false
 	if g.moveCooldown > 0 {
 		g.moveCooldown--
-		return nil
+		return
 	}
 	if time.Since(g.lastDropTime) > g.dropInterval {
 		down := [2]int{0, 1}
@@ -74,6 +110,7 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
 		g.Reset(g.ScreenWidth, g.ScreenHeight)
 		g.moveCooldown = g.moveCooldownMax
+		g.Menu.isActive = true
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
 		move[0] = -1
@@ -108,13 +145,26 @@ func (g *Game) Update() error {
 		g.NextPieceIndex = RandomPieceIndex()
 		g.NextPieceArea.Update(g.NextPieceIndex)
 	}
+}
+
+func (g *Game) Update() error {
+	if g.Menu.isActive {
+		g.HandleMenuInput()
+	} else {
+		g.HandleMainGameInput()
+	}
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{240, 255, 255, 255})
-	g.PlayingArea.Draw(screen)
-	g.NextPieceArea.Draw(screen)
+	if g.Menu.isActive {
+		g.Menu.Draw(screen)
+	} else {
+		screen.Fill(color.RGBA{240, 255, 255, 255})
+		g.PlayingArea.Draw(screen)
+		g.NextPieceArea.Draw(screen)
+	}
+
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
