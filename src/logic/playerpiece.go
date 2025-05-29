@@ -42,21 +42,28 @@ func GetPieceMinMaxValues(newPos [4][2]int) [4]int {
 	return [4]int{minX, minY, maxX, maxY}
 }
 
-func (pp *PlayerPiece) Rotation(col int, row int) {
+func (pp *PlayerPiece) Rotation(grid *[rows][cols]bool) {
 	origin := pp.position[0]
+	var rotated [4][2]int
 
 	for i, block := range pp.position {
+		// Translate to origin
 		dx := block[0] - origin[0]
 		dy := block[1] - origin[1]
-		pp.position[i][0] = origin[0] + dy
-		pp.position[i][1] = origin[1] - dx
+		newX := origin[0] + dy
+		newY := origin[1] - dx
+
+		rotated[i][0] = newX
+		rotated[i][1] = newY
 	}
-	pp.AdjustRotationPosition(col, row)
+	rotated = AdjustRotationPosition(rotated)
+	if pp.DetectFallenPiecesCollision(rotated, grid) && pp.DetectPlayingAreaCollision(rotated) {
+		pp.position = rotated
+	}
 }
 
-func (pp *PlayerPiece) AdjustRotationPosition(col int, row int) {
-	pos := pp.position
-	minMaxValues := GetPieceMinMaxValues(pos)
+func AdjustRotationPosition(rotated [4][2]int) [4][2]int {
+	minMaxValues := GetPieceMinMaxValues(rotated)
 	move := [2]int{0, 0}
 	if minMaxValues[0] < 0 {
 		move[0] = 0 - minMaxValues[0]
@@ -64,18 +71,22 @@ func (pp *PlayerPiece) AdjustRotationPosition(col int, row int) {
 	if minMaxValues[1] < 0 {
 		move[1] = 0 - minMaxValues[1]
 	}
-	if minMaxValues[2] > col {
-		move[0] = col - minMaxValues[2] - 2
+	if minMaxValues[2] >= cols {
+		move[0] = cols - 1 - minMaxValues[2]
 	}
-	if minMaxValues[3] > row {
-		move[1] = row - minMaxValues[3] - 2
+	if minMaxValues[3] >= rows {
+		move[1] = rows - 1 - minMaxValues[3]
 	}
-	pp.UpdatePlayerPiece(move)
+	for i := range rotated {
+		rotated[i][0] += move[0]
+		rotated[i][1] += move[1]
+	}
+	return rotated
 }
 
-func (pp *PlayerPiece) DetectPlayingAreaCollision(newPos [4][2]int, col int, row int) bool {
+func (pp *PlayerPiece) DetectPlayingAreaCollision(newPos [4][2]int) bool {
 	minMaxValues := GetPieceMinMaxValues(newPos)
-	return minMaxValues[0] >= 0 && minMaxValues[1] >= 0 && minMaxValues[2] < col && minMaxValues[3] < row
+	return minMaxValues[0] >= 0 && minMaxValues[1] >= 0 && minMaxValues[2] < cols && minMaxValues[3] < rows
 }
 
 func (pp *PlayerPiece) DetectFallenPiecesCollision(newPos [4][2]int, grid *[rows][cols]bool) bool {
@@ -87,13 +98,13 @@ func (pp *PlayerPiece) DetectFallenPiecesCollision(newPos [4][2]int, grid *[rows
 	return true
 }
 
-func (pp *PlayerPiece) CollisionDetection(newMove [2]int, col int, row int, grid *[rows][cols]bool) bool {
+func (pp *PlayerPiece) CollisionDetection(newMove [2]int, grid *[rows][cols]bool) bool {
 	var moved [4][2]int
 	for i, pos := range pp.position {
 		moved[i][0] = pos[0] + newMove[0]
 		moved[i][1] = pos[1] + newMove[1]
 	}
-	return pp.DetectPlayingAreaCollision(moved, col, row) && pp.DetectFallenPiecesCollision(moved, grid)
+	return pp.DetectPlayingAreaCollision(moved) && pp.DetectFallenPiecesCollision(moved, grid)
 }
 
 func (pp *PlayerPiece) ShouldLock(row int, lockDelay time.Duration, grid *[rows][cols]bool) bool {

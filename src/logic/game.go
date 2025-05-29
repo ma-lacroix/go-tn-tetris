@@ -97,7 +97,7 @@ func (g *Game) HandleMainGameInput() {
 	}
 	if time.Since(g.lastDropTime) > g.dropInterval {
 		down := [2]int{0, 1}
-		if g.PlayingArea.playerPiece.CollisionDetection(down, cols, rows, &g.PlayingArea.board) {
+		if g.PlayingArea.playerPiece.CollisionDetection(down, &g.PlayingArea.board) {
 			g.PlayingArea.playerPiece.UpdatePlayerPiece(down)
 		}
 		g.lastDropTime = time.Now()
@@ -118,19 +118,17 @@ func (g *Game) HandleMainGameInput() {
 	if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 		move[0] = 1
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
-		move[1] = -1
-	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
 		move[1] = 1
 		down = true
 	}
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		g.PlayingArea.playerPiece.Rotation(cols, rows)
+		g.PlayingArea.playerPiece.Rotation(&g.PlayingArea.board)
 		g.moveCooldown = g.moveCooldownMax
+		return
 	}
 	if move != [2]int{0, 0} {
-		if g.PlayingArea.playerPiece.CollisionDetection(move, cols, rows, &g.PlayingArea.board) {
+		if g.PlayingArea.playerPiece.CollisionDetection(move, &g.PlayingArea.board) {
 			g.PlayingArea.playerPiece.UpdatePlayerPiece(move)
 		}
 		if down {
