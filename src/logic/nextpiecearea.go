@@ -37,7 +37,7 @@ func (p *NextPieceArea) Update(newPieceIndex int) {
 }
 
 func (p *NextPieceArea) DrawBackground(screen *ebiten.Image) {
-	vector.DrawFilledRect(screen, p.x0+50, p.y0, p.x1*0.75, p.y1*0.15,
+	vector.DrawFilledRect(screen, p.x0+80, p.y0, p.x1*0.50, p.y1*0.15,
 		color.RGBA{210, 230, 245, 0xFF}, false)
 }
 
@@ -45,7 +45,7 @@ func (p *NextPieceArea) Draw(screen *ebiten.Image) {
 	p.DrawBackground(screen)
 	for _, pos := range p.tetronimo {
 		vector.DrawFilledRect(screen,
-			float32(pos[0])*p.bx+p.x0,
+			float32(pos[0])*p.bx+p.x0+20,
 			float32(pos[1])*p.by+p.y0,
 			p.bx,
 			p.by,

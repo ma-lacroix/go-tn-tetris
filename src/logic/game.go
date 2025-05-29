@@ -104,10 +104,6 @@ func (g *Game) HandleMainGameInput() {
 		}
 		g.lastDropTime = time.Now()
 	}
-	if time.Since(g.animationTime) > g.animationInterval {
-		g.PlayingArea.fallenBlocks.MoveExplodingBlocks()
-		g.animationTime = time.Now()
-	}
 	move := [2]int{0, 0}
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
 		g.Reset(g.ScreenWidth, g.ScreenHeight)
@@ -162,6 +158,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if g.Menu.isActive {
 		g.Menu.Draw(screen)
 	} else {
+		if time.Since(g.animationTime) > g.animationInterval {
+			g.PlayingArea.fallenBlocks.MoveExplodingBlocks()
+			g.animationTime = time.Now()
+		}
 		screen.Fill(color.RGBA{240, 255, 255, 255})
 		g.PlayingArea.Draw(screen)
 		g.NextPieceArea.Draw(screen)

@@ -34,11 +34,12 @@ func (s *ScoreBoard) Update(newLines int32) {
 }
 
 func (s *ScoreBoard) DrawBackground(screen *ebiten.Image) {
-	vector.DrawFilledRect(screen, s.x0+50, s.y0, s.x1*0.75, s.y1*0.15,
+	vector.DrawFilledRect(screen, s.x0+80, s.y0, s.x1*0.50, s.y1*0.15,
 		color.RGBA{210, 230, 245, 0xFF}, false)
 }
 
 func (s *ScoreBoard) Draw(screen *ebiten.Image) {
 	s.DrawBackground(screen)
-	text.Draw(screen, strconv.Itoa(int(s.score)), inconsolata.Bold8x16, int(s.x0)+100, int(s.y0)+50, color.RGBA{20, 20, 30, 255})
+	text.Draw(screen, strconv.Itoa(int(s.score)), inconsolata.Bold8x16, int(s.x0)+100,
+		int(s.y0)+50, color.RGBA{20, 20, 30, 255})
 }

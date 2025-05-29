@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	amplitudeY = 60.0
-	amplitudeX = 5.0
+	amplitudeY = 100.0
+	amplitudeX = 50.0
 )
 
 type FallenBlock struct {
@@ -127,9 +127,9 @@ func (f *FallenBlocks) MoveExplodingBlocks() {
 	f.removeOutOfBoundBlocks()
 	if len(f.blocksToAnimate) != 0 {
 		for i, _ := range f.blocksToAnimate {
-			f.blocksToAnimate[i].alpha += 0.01
-			f.blocksToAnimate[i].x0 += float32(amplitudeX*math.Cos(float64(f.blocksToAnimate[i].alpha))) * f.blocksToAnimate[i].direction
-			f.blocksToAnimate[i].y0 += float32(amplitudeY * math.Sin(float64(f.blocksToAnimate[i].alpha)))
+			f.blocksToAnimate[i].alpha += 0.00005
+			f.blocksToAnimate[i].x0 += float32(amplitudeX*math.Cos(float64(f.blocksToAnimate[i].alpha))) * Randomizer() * f.blocksToAnimate[i].direction
+			f.blocksToAnimate[i].y0 += float32(amplitudeY*math.Sin(float64(f.blocksToAnimate[i].alpha))) * Randomizer()
 		}
 	}
 }
