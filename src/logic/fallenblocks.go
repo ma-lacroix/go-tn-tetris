@@ -27,10 +27,11 @@ type FallenBlock struct {
 type FallenBlocks struct {
 	fallenBlocks    []FallenBlock
 	blocksToAnimate []FallenBlock
+	rowsRemoved     int32
 }
 
 func NewFallenBlocks() *FallenBlocks {
-	return &FallenBlocks{}
+	return &FallenBlocks{rowsRemoved: 0}
 }
 
 func Randomizer() float32 {
@@ -62,6 +63,7 @@ func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, areaCoordinates [4]floa
 		minKeyValue := findMinKeyValue(rowsToRemove)
 		f.removeCompleteRows(rowsToRemove)
 		f.moveBlocksDownwards(minKeyValue, len(rowsToRemove), areaCoordinates[3])
+		f.rowsRemoved += int32(len(rowsToRemove))
 	}
 }
 
@@ -125,7 +127,7 @@ func (f *FallenBlocks) MoveExplodingBlocks() {
 	f.removeOutOfBoundBlocks()
 	if len(f.blocksToAnimate) != 0 {
 		for i, _ := range f.blocksToAnimate {
-			f.blocksToAnimate[i].alpha += 0.05
+			f.blocksToAnimate[i].alpha += 0.01
 			f.blocksToAnimate[i].x0 += float32(amplitudeX*math.Cos(float64(f.blocksToAnimate[i].alpha))) * f.blocksToAnimate[i].direction
 			f.blocksToAnimate[i].y0 += float32(amplitudeY * math.Sin(float64(f.blocksToAnimate[i].alpha)))
 		}

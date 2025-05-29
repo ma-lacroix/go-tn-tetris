@@ -21,6 +21,7 @@ type Game struct {
 	Menu              *Menu
 	NextPieceArea     *NextPieceArea
 	NextPieceIndex    int
+	ScoreBoard        *ScoreBoard
 	PlayingArea       *PlayingArea
 	moveCooldown      int
 	moveCooldownMax   int
@@ -38,6 +39,7 @@ func NewGame(width, height int) *Game {
 		Menu:              NewMenu(),
 		NextPieceArea:     NewNextPieceArea(nextPieceIndex, width, height),
 		NextPieceIndex:    nextPieceIndex,
+		ScoreBoard:        NewScoreBoard(width, height),
 		PlayingArea:       NewPlayingArea(width, height),
 		moveCooldownMax:   10,
 		dropInterval:      1000 * time.Millisecond,
@@ -142,6 +144,8 @@ func (g *Game) HandleMainGameInput() {
 		g.PlayingArea.ResetPlayerPiece(g.NextPieceIndex)
 		g.NextPieceIndex = RandomPieceIndex()
 		g.NextPieceArea.Update(g.NextPieceIndex)
+		g.ScoreBoard.Update(g.PlayingArea.fallenBlocks.rowsRemoved)
+
 	}
 }
 
@@ -161,6 +165,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		screen.Fill(color.RGBA{240, 255, 255, 255})
 		g.PlayingArea.Draw(screen)
 		g.NextPieceArea.Draw(screen)
+		g.ScoreBoard.Draw(screen)
 	}
 
 }
