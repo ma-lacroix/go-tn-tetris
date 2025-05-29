@@ -5,8 +5,11 @@ package logic
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
-	"image/color"
+	"image"
+	_ "image/png"
+	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -29,10 +32,12 @@ type Game struct {
 	dropInterval      time.Duration
 	animationTime     time.Time
 	animationInterval time.Duration
+	backgroundImage   *ebiten.Image
 }
 
 func NewGame(width, height int) *Game {
 	nextPieceIndex := RandomPieceIndex()
+	bgImage := loadImage("../media/images/b_background.png")
 	return &Game{
 		ScreenWidth:       width,
 		ScreenHeight:      height,
@@ -44,7 +49,23 @@ func NewGame(width, height int) *Game {
 		moveCooldownMax:   10,
 		dropInterval:      1000 * time.Millisecond,
 		animationInterval: 10 * time.Millisecond,
+		backgroundImage:   bgImage,
 	}
+}
+
+func loadImage(path string) *ebiten.Image {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("failed to open image %s: %v", path, err)
+	}
+	defer f.Close()
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		log.Fatalf("failed to decode image %s: %v", path, err)
+	}
+
+	return ebiten.NewImageFromImage(img)
 }
 
 func (g *Game) Reset(width int, height int) {
@@ -162,7 +183,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			g.PlayingArea.fallenBlocks.MoveExplodingBlocks()
 			g.animationTime = time.Now()
 		}
-		screen.Fill(color.RGBA{240, 255, 255, 255})
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(0.5625, 0.5333)
+		screen.DrawImage(g.backgroundImage, op)
 		g.PlayingArea.Draw(screen)
 		g.NextPieceArea.Draw(screen)
 		g.ScoreBoard.Draw(screen)
