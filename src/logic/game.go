@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	rows = 20
-	cols = 10
+	rows        = 20
+	cols        = 10
+	imageScaleX = 0.5625
+	imageScaleY = 0.5333
 )
 
 type Game struct {
@@ -184,7 +186,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			g.animationTime = time.Now()
 		}
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(0.5625, 0.5333)
+		op.GeoM.Scale(imageScaleX, imageScaleY)
 		screen.DrawImage(g.backgroundImage, op)
 		g.PlayingArea.Draw(screen)
 		g.NextPieceArea.Draw(screen)

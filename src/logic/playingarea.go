@@ -39,12 +39,12 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 		}
 	}
 	return &PlayingArea{
-		x0:           paddingX - offSet*1.2,
-		y0:           paddingY + offSet*4,
-		x1:           float32(ScreenWidth) - paddingX - offSet*1.5,
-		y1:           float32(ScreenHeight) - paddingY + offSet*0.4,
-		bx:           ((float32(ScreenWidth) - paddingX - offSet*1.5) - (paddingX - offSet*1.2)) / cols,
-		by:           ((float32(ScreenHeight) - paddingY + offSet*0.4) - (paddingY + offSet*4)) / rows,
+		x0:           paddingX - offSet*1.55,
+		y0:           paddingY + offSet*2.2,
+		x1:           float32(ScreenWidth) - paddingX - offSet*1.65,
+		y1:           float32(ScreenHeight) - paddingY + offSet*0.65,
+		bx:           (float32(ScreenWidth) - 2*paddingX - offSet*0.10) / cols,
+		by:           (float32(ScreenHeight) - 2*paddingY - offSet*1.55) / rows,
 		board:        grid,
 		blockPieces:  bp,
 		playerPiece:  pp,
@@ -117,13 +117,7 @@ func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
 	vector.StrokeLine(screen, p.x1, p.y1, p.x1, p.y0, strokeWidth, borderColor, true)
 }
 
-func (p *PlayingArea) DrawBackground(screen *ebiten.Image) {
-	vector.DrawFilledRect(screen, p.x0, p.y0, p.x1-p.x0, p.y1-p.y0,
-		color.RGBA{240, 240, 245, 0xFF}, false)
-}
-
 func (p *PlayingArea) Draw(screen *ebiten.Image) {
-	p.DrawBackground(screen)
 	p.DrawBorders(screen)
 	p.playerPiece.Draw(screen, p)
 	p.fallenBlocks.Draw(screen)
