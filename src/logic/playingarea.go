@@ -23,6 +23,7 @@ type PlayingArea struct {
 	blockPieces            *BlockPieces
 	playerPiece            *PlayerPiece
 	fallenBlocks           *FallenBlocks
+	backgroundImage        *ebiten.Image
 }
 
 func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
@@ -38,17 +39,19 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 			grid[i][j] = true
 		}
 	}
+	backgroundImage := loadImage("../media/images/b_playing_area.png")
 	return &PlayingArea{
-		x0:           paddingX - offSet*1.55,
-		y0:           paddingY + offSet*2.2,
-		x1:           float32(ScreenWidth) - paddingX - offSet*1.65,
-		y1:           float32(ScreenHeight) - paddingY + offSet*0.65,
-		bx:           (float32(ScreenWidth) - 2*paddingX - offSet*0.10) / cols,
-		by:           (float32(ScreenHeight) - 2*paddingY - offSet*1.55) / rows,
-		board:        grid,
-		blockPieces:  bp,
-		playerPiece:  pp,
-		fallenBlocks: fb,
+		x0:              paddingX - offSet*1.55,
+		y0:              paddingY + offSet*2.2,
+		x1:              float32(ScreenWidth) - paddingX - offSet*1.65,
+		y1:              float32(ScreenHeight) - paddingY + offSet*0.65,
+		bx:              (float32(ScreenWidth) - 2*paddingX - offSet*0.10) / cols,
+		by:              (float32(ScreenHeight) - 2*paddingY - offSet*1.55) / rows,
+		board:           grid,
+		blockPieces:     bp,
+		playerPiece:     pp,
+		fallenBlocks:    fb,
+		backgroundImage: backgroundImage,
 	}
 }
 
@@ -118,7 +121,10 @@ func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
 }
 
 func (p *PlayingArea) Draw(screen *ebiten.Image) {
-	p.DrawBorders(screen)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(imageScaleX, imageScaleY)
+	op.GeoM.Translate(float64(p.x0), float64(p.y0))
+	screen.DrawImage(p.backgroundImage, op)
 	p.playerPiece.Draw(screen, p)
 	p.fallenBlocks.Draw(screen)
 	p.fallenBlocks.DrawExplodingBlocks(screen)
