@@ -27,12 +27,15 @@ type PlayingArea struct {
 }
 
 func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
+	newPieceIndex := RandomPieceIndex()
 	offSet := float32(50)
 	paddingX := float32(ScreenWidth / 5)
 	paddingY := float32(ScreenWidth / 10)
 	var grid [rows][cols]bool
 	bp := NewBlockPieces()
-	pp := NewPlayerPiece(bp.GenerateNewPiece(RandomPieceIndex()), RandomPieceColorIndex())
+	pp := NewPlayerPiece(bp.GenerateNewPiece(newPieceIndex),
+		bp.GenerateNewPieceImageLocations(newPieceIndex),
+		RandomPieceColorIndex())
 	fb := NewFallenBlocks()
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j++ {
@@ -103,6 +106,7 @@ func (p *PlayingArea) ResetPlayerPiece(pieceIndex int) {
 	colorIndex := RandomPieceColorIndex()
 	p.playerPiece = NewPlayerPiece(
 		p.blockPieces.GenerateNewPiece(pieceIndex),
+		p.blockPieces.GenerateNewPieceImageLocations(pieceIndex),
 		colorIndex,
 	)
 }

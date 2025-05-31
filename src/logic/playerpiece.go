@@ -10,15 +10,20 @@ import (
 )
 
 type PlayerPiece struct {
-	position       [4][2]int
-	color          color.Color
-	lockDelayTimer time.Time
+	position         [4][2]int
+	imagePositions   [4][2]int
+	color            color.Color
+	lockDelayTimer   time.Time
+	blockPiecesImage *ebiten.Image
 }
 
-func NewPlayerPiece(tetronimo [4][2]int, colorValues [3]int) *PlayerPiece {
+func NewPlayerPiece(tetronimo [4][2]int, imagePositions [4][2]int, colorValues [3]int) *PlayerPiece {
+	blockPiecesImage := loadImage("../media/images/p_tetris_blocks_1.png")
 	return &PlayerPiece{
-		position: tetronimo,
-		color:    color.RGBA{uint8(colorValues[0]), uint8(colorValues[1]), uint8(colorValues[2]), 255},
+		position:         tetronimo,
+		imagePositions:   imagePositions,
+		color:            color.RGBA{uint8(colorValues[0]), uint8(colorValues[1]), uint8(colorValues[2]), 255},
+		blockPiecesImage: blockPiecesImage,
 	}
 }
 
@@ -144,6 +149,10 @@ func (pp *PlayerPiece) UpdatePlayerPiece(newMove [2]int) {
 		pp.position[i][0] += newMove[0]
 		pp.position[i][1] += newMove[1]
 	}
+}
+
+func (p *PlayingArea) AddPiecesTextures(screen *ebiten.Image) {
+
 }
 
 func (pp *PlayerPiece) Draw(screen *ebiten.Image, p *PlayingArea) {
