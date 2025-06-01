@@ -156,7 +156,7 @@ func (f *FallenBlocks) AddPieceTexture(screen *ebiten.Image, block FallenBlock) 
 	tileWidth := blockTexturesX / blockTexturesLenX
 	tileHeight := blockTexturesY / blockTexturesLenY
 	sx := tileWidth * block.imagePositions[0]
-	sy := tileHeight * block.imagePositions[0]
+	sy := tileHeight * block.imagePositions[1] // ✅ fixed index
 	rect := image.Rect(sx, sy, sx+tileWidth, sy+tileHeight)
 	cropped := f.blockPiecesImage.SubImage(rect).(*ebiten.Image)
 	op := &ebiten.DrawImageOptions{}
@@ -164,14 +164,11 @@ func (f *FallenBlocks) AddPieceTexture(screen *ebiten.Image, block FallenBlock) 
 	scaleX := 0.2305
 	scaleY := 0.2305
 	op.GeoM.Scale(scaleX, scaleY)
-	op.GeoM.Translate(
-		-float64(w)*scaleX/2,
-		-float64(h)*scaleY/2,
-	)
+	op.GeoM.Translate(-float64(w)*scaleX/2, -float64(h)*scaleY/2)
 	op.GeoM.Rotate(block.rotation)
 	op.GeoM.Translate(
-		float64(block.imagePositions[0])*float64(block.bx)+float64(block.x0)+float64(block.bx)/2,
-		float64(block.imagePositions[1])*float64(block.by)+float64(block.y0)+float64(block.by)/2,
+		float64(block.x0)+float64(block.bx)/2,
+		float64(block.y0)+float64(block.by)/2,
 	)
 	screen.DrawImage(cropped, op)
 }

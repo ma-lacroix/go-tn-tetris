@@ -5,11 +5,8 @@ package logic
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
-	"image"
 	_ "image/png"
-	"log"
 	"math/rand"
-	"os"
 	"time"
 )
 
@@ -53,20 +50,6 @@ func NewGame(width, height int) *Game {
 		animationInterval: 10 * time.Millisecond,
 		backgroundImage:   bgImage,
 	}
-}
-
-func loadImage(path string) *ebiten.Image {
-	f, err := os.Open(path)
-	if err != nil {
-		log.Fatalf("failed to open image %s: %v", path, err)
-	}
-	defer f.Close()
-
-	img, _, err := image.Decode(f)
-	if err != nil {
-		log.Fatalf("failed to decode image %s: %v", path, err)
-	}
-	return ebiten.NewImageFromImage(img)
 }
 
 func (g *Game) Reset(width int, height int) {
