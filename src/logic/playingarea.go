@@ -7,15 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
-	"math/rand"
-	"time"
 )
-
-func RandomPieceColorIndex() [3]int {
-	rand.Seed(time.Now().UnixNano())
-	colorValues := [3]int{rand.Intn(255) + 1, rand.Intn(255) + 1, rand.Intn(255) + 1}
-	return colorValues
-}
 
 type PlayingArea struct {
 	x0, y0, x1, y1, bx, by float32
@@ -33,9 +25,7 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 	paddingY := float32(ScreenWidth / 10)
 	var grid [rows][cols]bool
 	bp := NewBlockPieces()
-	pp := NewPlayerPiece(bp.GenerateNewPiece(newPieceIndex),
-		bp.GenerateNewPieceImageLocations(newPieceIndex),
-		RandomPieceColorIndex())
+	pp := NewPlayerPiece(bp.GenerateNewPiece(newPieceIndex), bp.GenerateNewPieceImageLocations(newPieceIndex))
 	fb := NewFallenBlocks()
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j++ {
@@ -102,12 +92,14 @@ func (p *PlayingArea) UpdateBoard() {
 
 func (p *PlayingArea) ResetPlayerPiece(pieceIndex int) {
 	p.UpdateBoard()
-	p.fallenBlocks.UpdateBlocks(p.playerPiece.position, [4]float32{p.x0, p.y0, p.bx, p.by}, p.playerPiece.color)
-	colorIndex := RandomPieceColorIndex()
+	p.fallenBlocks.UpdateBlocks(p.playerPiece.position,
+		p.playerPiece.imagePositions,
+		[4]float32{p.x0, p.y0, p.bx, p.by},
+		p.playerPiece.color,
+		angles[p.playerPiece.rotationIndex])
 	p.playerPiece = NewPlayerPiece(
 		p.blockPieces.GenerateNewPiece(pieceIndex),
 		p.blockPieces.GenerateNewPieceImageLocations(pieceIndex),
-		colorIndex,
 	)
 }
 

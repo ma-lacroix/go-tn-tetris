@@ -6,6 +6,7 @@ package logic
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"image"
 	"image/color"
 	"math"
 	"math/rand"
@@ -19,19 +20,26 @@ const (
 
 type FallenBlock struct {
 	x0, y0, bx, by float32
+	imagePositions [2]int
 	color          color.Color
 	alpha          float32
 	direction      float32
+	rotation       float64
 }
 
 type FallenBlocks struct {
-	fallenBlocks    []FallenBlock
-	blocksToAnimate []FallenBlock
-	rowsRemoved     int32
+	fallenBlocks     []FallenBlock
+	blocksToAnimate  []FallenBlock
+	rowsRemoved      int32
+	blockPiecesImage *ebiten.Image
 }
 
 func NewFallenBlocks() *FallenBlocks {
-	return &FallenBlocks{rowsRemoved: 0}
+	blockPiecesImage := loadImage("../media/images/p_tetris_blocks_1.png")
+	return &FallenBlocks{
+		rowsRemoved:      0,
+		blockPiecesImage: blockPiecesImage,
+	}
 }
 
 func Randomizer() float32 {
@@ -39,7 +47,7 @@ func Randomizer() float32 {
 	return rand.Float32()
 }
 
-func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, areaCoordinates [4]float32, color color.Color) {
+func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, imagePositions [4][2]int, areaCoordinates [4]float32, color color.Color, rotation float64) {
 	var direction float32
 	alpha := Randomizer()
 	if alpha < 0.5 {
@@ -47,15 +55,17 @@ func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, areaCoordinates [4]floa
 	} else {
 		direction = -1
 	}
-	for _, pos := range playerPos {
+	for i := 0; i < len(playerPos); i++ {
 		f.fallenBlocks = append(f.fallenBlocks, FallenBlock{
-			float32(pos[0])*areaCoordinates[2] + areaCoordinates[0],
-			float32(pos[1])*areaCoordinates[3] + areaCoordinates[1],
+			float32(playerPos[i][0])*areaCoordinates[2] + areaCoordinates[0],
+			float32(playerPos[i][1])*areaCoordinates[3] + areaCoordinates[1],
 			areaCoordinates[2],
 			areaCoordinates[3],
+			imagePositions[i],
 			color,
 			Randomizer(),
 			direction,
+			rotation,
 		})
 	}
 	rowsToRemove := f.findCompleteRows()
@@ -142,8 +152,33 @@ func (f *FallenBlocks) DrawExplodingBlocks(screen *ebiten.Image) {
 	}
 }
 
+func (f *FallenBlocks) AddPieceTexture(screen *ebiten.Image, block FallenBlock) {
+	tileWidth := blockTexturesX / blockTexturesLenX
+	tileHeight := blockTexturesY / blockTexturesLenY
+	sx := tileWidth * block.imagePositions[0]
+	sy := tileHeight * block.imagePositions[0]
+	rect := image.Rect(sx, sy, sx+tileWidth, sy+tileHeight)
+	cropped := f.blockPiecesImage.SubImage(rect).(*ebiten.Image)
+	op := &ebiten.DrawImageOptions{}
+	w, h := cropped.Size()
+	scaleX := 0.2305
+	scaleY := 0.2305
+	op.GeoM.Scale(scaleX, scaleY)
+	op.GeoM.Translate(
+		-float64(w)*scaleX/2,
+		-float64(h)*scaleY/2,
+	)
+	op.GeoM.Rotate(block.rotation)
+	op.GeoM.Translate(
+		float64(block.imagePositions[0])*float64(block.bx)+float64(block.x0)+float64(block.bx)/2,
+		float64(block.imagePositions[1])*float64(block.by)+float64(block.y0)+float64(block.by)/2,
+	)
+	screen.DrawImage(cropped, op)
+}
+
 func (f *FallenBlocks) Draw(screen *ebiten.Image) {
 	for _, block := range f.fallenBlocks {
 		vector.DrawFilledRect(screen, block.x0, block.y0, block.bx, block.by, block.color, true)
+		f.AddPieceTexture(screen, block)
 	}
 }

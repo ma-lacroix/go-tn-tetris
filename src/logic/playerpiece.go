@@ -5,8 +5,21 @@ package logic
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"image"
 	"image/color"
+	"math"
 	"time"
+)
+
+var (
+	angles = []float64{0, math.Pi / 2, math.Pi, 3 * math.Pi / 2}
+)
+
+const (
+	blockTexturesX    = 1733
+	blockTexturesLenX = 13
+	blockTexturesY    = 800
+	blockTexturesLenY = 6
 )
 
 type PlayerPiece struct {
@@ -15,15 +28,17 @@ type PlayerPiece struct {
 	color            color.Color
 	lockDelayTimer   time.Time
 	blockPiecesImage *ebiten.Image
+	rotationIndex    int
 }
 
-func NewPlayerPiece(tetronimo [4][2]int, imagePositions [4][2]int, colorValues [3]int) *PlayerPiece {
+func NewPlayerPiece(tetronimo [4][2]int, imagePositions [4][2]int) *PlayerPiece {
 	blockPiecesImage := loadImage("../media/images/p_tetris_blocks_1.png")
 	return &PlayerPiece{
 		position:         tetronimo,
 		imagePositions:   imagePositions,
-		color:            color.RGBA{uint8(colorValues[0]), uint8(colorValues[1]), uint8(colorValues[2]), 255},
+		color:            color.RGBA{0, 0, 0, 255},
 		blockPiecesImage: blockPiecesImage,
+		rotationIndex:    0,
 	}
 }
 
@@ -64,6 +79,11 @@ func (pp *PlayerPiece) Rotation(grid *[rows][cols]bool) {
 	rotated = AdjustRotationPosition(rotated)
 	if pp.DetectFallenPiecesCollision(rotated, grid) && pp.DetectPlayingAreaCollision(rotated) {
 		pp.position = rotated
+		if pp.rotationIndex == 3 {
+			pp.rotationIndex = 0
+		} else {
+			pp.rotationIndex += 1
+		}
 	}
 }
 
@@ -151,7 +171,32 @@ func (pp *PlayerPiece) UpdatePlayerPiece(newMove [2]int) {
 	}
 }
 
-func (p *PlayingArea) AddPiecesTextures(screen *ebiten.Image) {
+func (pp *PlayerPiece) AddPiecesTextures(screen *ebiten.Image, p *PlayingArea) {
+	tileWidth := blockTexturesX / blockTexturesLenX
+	tileHeight := blockTexturesY / blockTexturesLenY
+
+	for i := 0; i < len(pp.position); i++ {
+		sx := tileWidth * pp.imagePositions[i][0]
+		sy := tileHeight * pp.imagePositions[i][1]
+		rect := image.Rect(sx, sy, sx+tileWidth, sy+tileHeight)
+		cropped := pp.blockPiecesImage.SubImage(rect).(*ebiten.Image)
+
+		op := &ebiten.DrawImageOptions{}
+		w, h := cropped.Size()
+		scaleX := 0.2305
+		scaleY := 0.2305
+		op.GeoM.Scale(scaleX, scaleY)
+		op.GeoM.Translate(
+			-float64(w)*scaleX/2,
+			-float64(h)*scaleY/2,
+		)
+		op.GeoM.Rotate(angles[pp.rotationIndex])
+		op.GeoM.Translate(
+			float64(pp.position[i][0])*float64(p.bx)+float64(p.x0)+float64(p.bx)/2,
+			float64(pp.position[i][1])*float64(p.by)+float64(p.y0)+float64(p.by)/2,
+		)
+		screen.DrawImage(cropped, op)
+	}
 
 }
 
@@ -165,4 +210,5 @@ func (pp *PlayerPiece) Draw(screen *ebiten.Image, p *PlayingArea) {
 			pp.color,
 			true)
 	}
+	pp.AddPiecesTextures(screen, p)
 }

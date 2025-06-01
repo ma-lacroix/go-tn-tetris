@@ -161,8 +161,6 @@ func (g *Game) HandleMainGameInput() {
 	if g.PlayingArea.playerPiece.ShouldLock(rows, 500*time.Millisecond, &g.PlayingArea.board) {
 		g.PlayingArea.ResetPlayerPiece(g.NextPieceIndex)
 		g.NextPieceIndex = RandomPieceIndex()
-		// TODO: for testing specific pieces
-		//g.NextPieceIndex = 1
 		g.NextPieceArea.Update(g.NextPieceIndex)
 		g.ScoreBoard.Update(g.PlayingArea.fallenBlocks.rowsRemoved)
 
