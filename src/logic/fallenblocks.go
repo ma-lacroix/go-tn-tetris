@@ -15,7 +15,7 @@ import (
 
 const (
 	amplitudeY = 100.0
-	amplitudeX = 40.0
+	amplitudeX = 20.0
 )
 
 type FallenBlock struct {
