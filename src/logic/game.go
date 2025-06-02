@@ -6,15 +6,16 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "image/png"
-	"math/rand"
 	"time"
 )
 
 const (
-	rows        = 20
-	cols        = 10
-	imageScaleX = 0.5625
-	imageScaleY = 0.5333
+	rows             = 20
+	cols             = 10
+	imageScaleX      = 0.5625
+	imageScaleY      = 0.5333
+	blockImageScaleX = 0.21
+	blockImageScaleY = 0.21
 )
 
 type Game struct {
@@ -56,11 +57,6 @@ func (g *Game) Reset(width int, height int) {
 	nextPieceIndex := RandomPieceIndex()
 	g.NextPieceArea = NewNextPieceArea(nextPieceIndex, width, height)
 	g.PlayingArea = NewPlayingArea(g.ScreenWidth, g.ScreenHeight)
-}
-
-func RandomPieceIndex() int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(7) + 1
 }
 
 func (g *Game) HandleMenuInput() {

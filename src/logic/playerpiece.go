@@ -36,7 +36,7 @@ func NewPlayerPiece(tetronimo [4][2]int, imagePositions [4][2]int) *PlayerPiece 
 	return &PlayerPiece{
 		position:         tetronimo,
 		imagePositions:   imagePositions,
-		color:            color.RGBA{0, 0, 0, 255},
+		color:            color.RGBA{90, 90, 90, 255},
 		blockPiecesImage: blockPiecesImage,
 		rotationIndex:    0,
 	}
@@ -183,8 +183,8 @@ func (pp *PlayerPiece) AddPiecesTextures(screen *ebiten.Image, p *PlayingArea) {
 
 		op := &ebiten.DrawImageOptions{}
 		w, h := cropped.Size()
-		scaleX := 0.2305
-		scaleY := 0.2305
+		scaleX := blockImageScaleX
+		scaleY := blockImageScaleY
 		op.GeoM.Scale(scaleX, scaleY)
 		op.GeoM.Translate(
 			-float64(w)*scaleX/2,

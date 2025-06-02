@@ -6,7 +6,9 @@ import (
 	"golang.org/x/image/font/opentype"
 	"image"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func loadImage(path string) *ebiten.Image {
@@ -41,4 +43,9 @@ func LoadFont(path string, size float64) font.Face {
 		panic(err)
 	}
 	return face
+}
+
+func RandomPieceIndex() int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(7) + 1
 }

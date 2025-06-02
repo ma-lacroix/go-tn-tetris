@@ -15,7 +15,7 @@ import (
 
 const (
 	amplitudeY = 100.0
-	amplitudeX = 50.0
+	amplitudeX = 40.0
 )
 
 type FallenBlock struct {
@@ -136,10 +136,13 @@ func (f *FallenBlocks) removeOutOfBoundBlocks() {
 func (f *FallenBlocks) MoveExplodingBlocks() {
 	f.removeOutOfBoundBlocks()
 	if len(f.blocksToAnimate) != 0 {
-		for i, _ := range f.blocksToAnimate {
-			f.blocksToAnimate[i].alpha += 0.00005
-			f.blocksToAnimate[i].x0 += float32(amplitudeX*math.Cos(float64(f.blocksToAnimate[i].alpha))) * Randomizer() * f.blocksToAnimate[i].direction
-			f.blocksToAnimate[i].y0 += float32(amplitudeY*math.Sin(float64(f.blocksToAnimate[i].alpha))) * Randomizer()
+		for i := range f.blocksToAnimate {
+			f.blocksToAnimate[i].alpha += 0.01
+			x := float32(amplitudeX * math.Sin(-float64(f.blocksToAnimate[i].alpha*Randomizer())))
+			y := float32(amplitudeY * math.Sin(float64(f.blocksToAnimate[i].alpha)))
+			f.blocksToAnimate[i].x0 += x * f.blocksToAnimate[i].direction
+			f.blocksToAnimate[i].y0 += y
+			f.blocksToAnimate[i].rotation += float64(Randomizer())
 		}
 	}
 }
@@ -148,6 +151,7 @@ func (f *FallenBlocks) DrawExplodingBlocks(screen *ebiten.Image) {
 	if len(f.blocksToAnimate) != 0 {
 		for _, block := range f.blocksToAnimate {
 			vector.DrawFilledRect(screen, block.x0, block.y0, block.bx, block.by, block.color, true)
+			f.AddPieceTexture(screen, block)
 		}
 	}
 }
@@ -161,8 +165,8 @@ func (f *FallenBlocks) AddPieceTexture(screen *ebiten.Image, block FallenBlock) 
 	cropped := f.blockPiecesImage.SubImage(rect).(*ebiten.Image)
 	op := &ebiten.DrawImageOptions{}
 	w, h := cropped.Size()
-	scaleX := 0.2305
-	scaleY := 0.2305
+	scaleX := blockImageScaleX
+	scaleY := blockImageScaleY
 	op.GeoM.Scale(scaleX, scaleY)
 	op.GeoM.Translate(-float64(w)*scaleX/2, -float64(h)*scaleY/2)
 	op.GeoM.Rotate(block.rotation)
