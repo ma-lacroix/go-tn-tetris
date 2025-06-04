@@ -7,7 +7,7 @@ import (
 	"image/color"
 )
 
-const fontsize = 150
+const fontsize = 190
 const startingX = 400
 const startingY = 350
 
@@ -45,16 +45,9 @@ func (m *Messages) MoveActiveMessage() {
 				m.allMessages[i].pos[0] = startingX
 			}
 			m.allMessages[i].pos[0] -= 20
+			m.allMessages[i].pos[1] += 5
 		}
 
-	}
-	for _, msg := range m.allMessages {
-		if msg.active {
-			if msg.pos[0] <= -200 {
-				msg.active = false
-			}
-			msg.pos[0] -= 10
-		}
 	}
 }
 
