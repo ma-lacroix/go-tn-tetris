@@ -33,6 +33,7 @@ type Game struct {
 	animationTime     time.Time
 	animationInterval time.Duration
 	backgroundImage   *ebiten.Image
+	Messages          *Messages
 }
 
 func NewGame(width, height int) *Game {
@@ -50,6 +51,7 @@ func NewGame(width, height int) *Game {
 		dropInterval:      1000 * time.Millisecond,
 		animationInterval: 10 * time.Millisecond,
 		backgroundImage:   bgImage,
+		Messages:          NewMessages(),
 	}
 }
 
@@ -142,8 +144,12 @@ func (g *Game) HandleMainGameInput() {
 		g.NextPieceIndex = RandomPieceIndex()
 		g.NextPieceArea.Update(g.NextPieceIndex)
 		g.ScoreBoard.Update(g.PlayingArea.fallenBlocks.rowsRemoved)
-
+		if g.PlayingArea.fallenBlocks.rowsRemoved > 0 {
+			g.Messages.ActivateMessage(g.PlayingArea.fallenBlocks.rowsRemoved)
+			g.PlayingArea.fallenBlocks.ResetRowsToRemove()
+		}
 	}
+	g.Messages.MoveActiveMessage()
 }
 
 func (g *Game) Update() error {
@@ -169,6 +175,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.PlayingArea.Draw(screen)
 		g.NextPieceArea.Draw(screen)
 		g.ScoreBoard.Draw(screen)
+		g.Messages.Draw(screen)
 	}
 
 }

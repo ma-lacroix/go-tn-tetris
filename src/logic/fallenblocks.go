@@ -47,6 +47,10 @@ func Randomizer() float32 {
 	return rand.Float32()
 }
 
+func (f *FallenBlocks) ResetRowsToRemove() {
+	f.rowsRemoved = 0
+}
+
 func (f *FallenBlocks) UpdateBlocks(playerPos [4][2]int, imagePositions [4][2]int, areaCoordinates [4]float32, color color.Color, rotation float64) {
 	var direction float32
 	alpha := Randomizer()

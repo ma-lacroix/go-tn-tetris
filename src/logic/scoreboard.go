@@ -21,7 +21,7 @@ func NewScoreBoard(ScreenWidth int, ScreenHeight int) *ScoreBoard {
 	paddingX := float32(ScreenWidth / 5)
 	paddingY := float32(ScreenWidth / 10)
 	backgroundImage := loadImage("../media/images/b_score.png")
-	font := LoadFont("../media/font/Excludedi.ttf", 30)
+	font := LoadFont("../media/font/Excludedi.ttf", 50)
 	return &ScoreBoard{
 		x0:              paddingX + offSet*2.7,
 		y0:              paddingY + offSet*9.85,
@@ -36,7 +36,7 @@ func NewScoreBoard(ScreenWidth int, ScreenHeight int) *ScoreBoard {
 }
 
 func (s *ScoreBoard) Update(newLines int32) {
-	s.score = newLines
+	s.score += newLines
 }
 
 func (s *ScoreBoard) DrawBackground(screen *ebiten.Image) {
