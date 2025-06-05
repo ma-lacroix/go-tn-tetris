@@ -14,12 +14,15 @@ var (
 )
 
 type Menu struct {
-	isActive bool
+	isActive        bool
+	backgroundImage *ebiten.Image
 }
 
 func NewMenu() *Menu {
+	backgroundImage := loadImage("../media/images/b_intro.png")
 	return &Menu{
-		isActive: true,
+		isActive:        true,
+		backgroundImage: backgroundImage,
 	}
 }
 
@@ -52,11 +55,14 @@ func (m *Menu) Update() {
 
 func (m *Menu) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{20, 20, 30, 255})
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(imageScaleX, imageScaleY)
+	screen.DrawImage(m.backgroundImage, op)
 	for i, option := range menuOptions {
-		col := color.RGBA{100, 200, 20, 255}
+		col := color.RGBA{20, 20, 20, 255}
 		if i == selected {
-			col = color.RGBA{255, 200, 0, 255} // Highlight
+			col = color.RGBA{255, 100, 0, 255} // Highlight
 		}
-		text.Draw(screen, option, basicfont.Face7x13, 100, 100+i*30, col)
+		text.Draw(screen, option, basicfont.Face7x13, 100, 200+i*30, col)
 	}
 }

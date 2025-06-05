@@ -43,8 +43,9 @@ func (m *Messages) MoveActiveMessage() {
 			if m.allMessages[i].pos[0] <= -1500 {
 				m.allMessages[i].active = false
 				m.allMessages[i].pos[0] = startingX
+				m.allMessages[i].pos[1] = startingY
 			}
-			m.allMessages[i].pos[0] -= 20
+			m.allMessages[i].pos[0] -= 25
 			m.allMessages[i].pos[1] += 5
 		}
 
@@ -53,9 +54,11 @@ func (m *Messages) MoveActiveMessage() {
 
 func (m *Messages) Draw(screen *ebiten.Image) {
 	for _, message := range m.allMessages {
-		if message.active {
-			text.Draw(screen, message.msg, m.font, message.pos[0], message.pos[1],
-				color.RGBA{20, 20, 30, 230})
+		for i := 4; i > 0; i-- {
+			if message.active {
+				text.Draw(screen, message.msg, m.font, message.pos[0]+i*20, message.pos[1]-i*10,
+					color.RGBA{uint8(25 * i), uint8(5 * i), uint8(20 * i), uint8(240 / i)})
+			}
 		}
 	}
 }
