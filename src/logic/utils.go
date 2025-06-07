@@ -49,3 +49,8 @@ func RandomPieceIndex() int {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(7) + 1
 }
+
+func Randomizer() float32 {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Float32()
+}

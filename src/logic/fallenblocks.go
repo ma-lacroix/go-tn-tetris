@@ -9,8 +9,6 @@ import (
 	"image"
 	"image/color"
 	"math"
-	"math/rand"
-	"time"
 )
 
 const (
@@ -40,11 +38,6 @@ func NewFallenBlocks() *FallenBlocks {
 		rowsRemoved:      0,
 		blockPiecesImage: blockPiecesImage,
 	}
-}
-
-func Randomizer() float32 {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Float32()
 }
 
 func (f *FallenBlocks) ResetRowsToRemove() {
@@ -101,6 +94,17 @@ func (f *FallenBlocks) moveBlocksDownwards(minRowValue float32, numDrops int, bl
 	}
 }
 
+func (f *FallenBlocks) markAllAsAnimated() {
+	noBlocks := make([]FallenBlock, 0, len(f.fallenBlocks))
+	newBlocksToAnimate := make([]FallenBlock, 0, len(f.blocksToAnimate))
+	for _, block := range f.fallenBlocks {
+		newBlocksToAnimate = append(newBlocksToAnimate, block)
+	}
+	f.fallenBlocks = noBlocks
+	f.blocksToAnimate = newBlocksToAnimate
+
+}
+
 func (f *FallenBlocks) removeCompleteRows(rowsToDelete map[float32]bool) {
 	newBlocks := make([]FallenBlock, 0, len(f.fallenBlocks))
 	newBlocksToAnimate := make([]FallenBlock, 0, len(f.blocksToAnimate))
@@ -141,7 +145,7 @@ func (f *FallenBlocks) MoveExplodingBlocks() {
 	f.removeOutOfBoundBlocks()
 	if len(f.blocksToAnimate) != 0 {
 		for i := range f.blocksToAnimate {
-			f.blocksToAnimate[i].alpha += 0.01
+			f.blocksToAnimate[i].alpha += 0.0005
 			x := float32(amplitudeX * math.Sin(-float64(f.blocksToAnimate[i].alpha*Randomizer())))
 			y := float32(amplitudeY * math.Sin(float64(f.blocksToAnimate[i].alpha)))
 			f.blocksToAnimate[i].x0 += x * f.blocksToAnimate[i].direction
@@ -154,8 +158,16 @@ func (f *FallenBlocks) MoveExplodingBlocks() {
 func (f *FallenBlocks) DrawExplodingBlocks(screen *ebiten.Image) {
 	if len(f.blocksToAnimate) != 0 {
 		for _, block := range f.blocksToAnimate {
-			vector.DrawFilledRect(screen, block.x0, block.y0, block.bx, block.by, block.color, true)
 			f.AddPieceTexture(screen, block)
+			// adding more debris
+			for i := 50; i > 0; i-- {
+				vector.DrawFilledRect(screen,
+					block.x0+float32(i)*(30*Randomizer())*block.direction,
+					block.y0-float32(i)*(30*Randomizer()),
+					block.bx*0.25,
+					block.by*0.25,
+					color.RGBA{uint8(5 * i), uint8(5 * i), uint8(5 * i), 255}, true)
+			}
 		}
 	}
 }

@@ -16,6 +16,7 @@ type PlayingArea struct {
 	playerPiece            *PlayerPiece
 	fallenBlocks           *FallenBlocks
 	backgroundImage        *ebiten.Image
+	isActive               bool
 }
 
 func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
@@ -45,7 +46,16 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 		playerPiece:     pp,
 		fallenBlocks:    fb,
 		backgroundImage: backgroundImage,
+		isActive:        true,
 	}
+}
+
+func (p *PlayingArea) CanPlaceNewPiece() bool {
+	return p.board[1][4] == true || p.board[1][5] == true
+}
+
+func (p *PlayingArea) StopGame() {
+	p.isActive = false
 }
 
 func (p *PlayingArea) clearFullRowsAndShiftDown() {

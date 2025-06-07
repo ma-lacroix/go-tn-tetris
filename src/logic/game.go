@@ -3,7 +3,6 @@ package logic
 // This source file handles the main game loop and user input
 
 import (
-	"errors"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "image/png"
@@ -18,8 +17,6 @@ const (
 	blockImageScaleX = 0.21
 	blockImageScaleY = 0.21
 )
-
-var errExitGame = errors.New("user requested exit")
 
 type Game struct {
 	ScreenWidth       int
@@ -38,6 +35,7 @@ type Game struct {
 	backgroundImage   *ebiten.Image
 	Messages          *Messages
 	superDrop         bool
+	gameOver          *GameOver
 }
 
 func NewGame(width, height int) *Game {
@@ -57,6 +55,7 @@ func NewGame(width, height int) *Game {
 		backgroundImage:   bgImage,
 		Messages:          NewMessages(),
 		superDrop:         false,
+		gameOver:          NewGameOver(width, height),
 	}
 }
 
@@ -101,6 +100,11 @@ func (g *Game) HandleMenuInput() {
 }
 
 func (g *Game) HandleMainGameInput() {
+	if !g.PlayingArea.CanPlaceNewPiece() {
+		g.PlayingArea.fallenBlocks.markAllAsAnimated()
+		// TODO: player piece must disappear
+		g.PlayingArea.StopGame()
+	}
 	g.superDrop = false
 	down := false
 	if g.moveCooldown > 0 {
@@ -160,11 +164,31 @@ func (g *Game) HandleMainGameInput() {
 	g.Messages.MoveActiveMessage()
 }
 
+func (g *Game) HandleLastExplosion() {
+	g.PlayingArea.fallenBlocks.MoveExplodingBlocks()
+	if len(g.PlayingArea.fallenBlocks.blocksToAnimate) == 0 {
+		g.gameOver.isActive = true
+	}
+}
+
+func (g *Game) HandleGameOverScreen() {
+	g.gameOver.FlickerBackground()
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		g.Reset(g.ScreenWidth, g.ScreenHeight)
+		g.moveCooldown = g.moveCooldownMax
+		g.Menu.isActive = true
+	}
+}
+
 func (g *Game) Update() error {
 	if g.Menu.isActive {
 		g.HandleMenuInput()
-	} else {
+	} else if g.PlayingArea.isActive {
 		g.HandleMainGameInput()
+	} else if g.gameOver.isActive {
+		g.HandleGameOverScreen()
+	} else {
+		g.HandleLastExplosion()
 	}
 	return nil
 }
@@ -172,7 +196,7 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	if g.Menu.isActive {
 		g.Menu.Draw(screen)
-	} else {
+	} else if g.PlayingArea.isActive {
 		if time.Since(g.animationTime) > g.animationInterval {
 			g.PlayingArea.fallenBlocks.MoveExplodingBlocks()
 			g.animationTime = time.Now()
@@ -184,6 +208,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.NextPieceArea.Draw(screen)
 		g.ScoreBoard.Draw(screen)
 		g.Messages.Draw(screen)
+	} else if g.gameOver.isActive {
+		g.gameOver.Draw(screen)
+	} else {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(imageScaleX, imageScaleY)
+		screen.DrawImage(g.backgroundImage, op)
+		g.PlayingArea.Draw(screen, g.superDrop)
+		g.NextPieceArea.Draw(screen)
+		g.ScoreBoard.Draw(screen)
 	}
 }
 

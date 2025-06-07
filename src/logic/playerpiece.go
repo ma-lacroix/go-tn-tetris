@@ -215,7 +215,7 @@ func (pp *PlayerPiece) Draw(screen *ebiten.Image, p *PlayingArea) {
 
 func (pp *PlayerPiece) DrawSuperDrop(screen *ebiten.Image, p *PlayingArea) {
 	middlePoint := math.Abs(float64(pp.position[3][0]+pp.position[0][0])) / 2
-	for i := 50 - 1; i > 0; i-- {
+	for i := 60 - 1; i > 0; i-- {
 		vector.DrawFilledRect(screen,
 			float32(middlePoint)*p.bx+p.x0*Randomizer(),
 			float32(pp.position[2][1])*p.by+p.y0-float32(5*i),
