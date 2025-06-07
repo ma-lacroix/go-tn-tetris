@@ -212,3 +212,16 @@ func (pp *PlayerPiece) Draw(screen *ebiten.Image, p *PlayingArea) {
 	}
 	pp.AddPiecesTextures(screen, p)
 }
+
+func (pp *PlayerPiece) DrawSuperDrop(screen *ebiten.Image, p *PlayingArea) {
+	middlePoint := math.Abs(float64(pp.position[3][0]+pp.position[0][0])) / 2
+	for i := 50 - 1; i > 0; i-- {
+		vector.DrawFilledRect(screen,
+			float32(middlePoint)*p.bx+p.x0*Randomizer(),
+			float32(pp.position[2][1])*p.by+p.y0-float32(5*i),
+			p.bx*1.5,
+			p.by,
+			color.RGBA{uint8(255 / i), uint8(1 * i), uint8(1 * i), uint8(255 / i)},
+			true)
+	}
+}

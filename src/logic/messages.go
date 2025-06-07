@@ -40,7 +40,7 @@ func (m *Messages) MoveActiveMessage() {
 	for i := 0; i < len(m.allMessages); i++ {
 		if m.allMessages[i].active {
 			// reset message position
-			if m.allMessages[i].pos[0] <= -1500 {
+			if m.allMessages[i].pos[0] <= -2500 {
 				m.allMessages[i].active = false
 				m.allMessages[i].pos[0] = startingX
 				m.allMessages[i].pos[1] = startingY

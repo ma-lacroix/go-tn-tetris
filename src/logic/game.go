@@ -3,6 +3,7 @@ package logic
 // This source file handles the main game loop and user input
 
 import (
+	"errors"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "image/png"
@@ -17,6 +18,8 @@ const (
 	blockImageScaleX = 0.21
 	blockImageScaleY = 0.21
 )
+
+var errExitGame = errors.New("user requested exit")
 
 type Game struct {
 	ScreenWidth       int
@@ -34,6 +37,7 @@ type Game struct {
 	animationInterval time.Duration
 	backgroundImage   *ebiten.Image
 	Messages          *Messages
+	superDrop         bool
 }
 
 func NewGame(width, height int) *Game {
@@ -52,11 +56,13 @@ func NewGame(width, height int) *Game {
 		animationInterval: 10 * time.Millisecond,
 		backgroundImage:   bgImage,
 		Messages:          NewMessages(),
+		superDrop:         false,
 	}
 }
 
 func (g *Game) Reset(width int, height int) {
 	nextPieceIndex := RandomPieceIndex()
+	g.dropInterval = 1000 * time.Millisecond
 	g.NextPieceArea = NewNextPieceArea(nextPieceIndex, width, height)
 	g.PlayingArea = NewPlayingArea(g.ScreenWidth, g.ScreenHeight)
 }
@@ -87,14 +93,15 @@ func (g *Game) HandleMenuInput() {
 			g.Menu.isActive = false
 		case 1:
 			fmt.Println("Options selected")
-		case 2:
-			fmt.Println("Quitting...")
+			g.Menu.isActive = false
+			g.dropInterval = 500 * time.Millisecond
 		}
 	}
 
 }
 
 func (g *Game) HandleMainGameInput() {
+	g.superDrop = false
 	down := false
 	if g.moveCooldown > 0 {
 		g.moveCooldown--
@@ -134,6 +141,7 @@ func (g *Game) HandleMainGameInput() {
 		}
 		if down {
 			g.moveCooldown = g.moveCooldownMax / 10
+			g.superDrop = true
 			down = false
 		} else {
 			g.moveCooldown = g.moveCooldownMax
@@ -172,12 +180,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(imageScaleX, imageScaleY)
 		screen.DrawImage(g.backgroundImage, op)
-		g.PlayingArea.Draw(screen)
+		g.PlayingArea.Draw(screen, g.superDrop)
 		g.NextPieceArea.Draw(screen)
 		g.ScoreBoard.Draw(screen)
 		g.Messages.Draw(screen)
 	}
-
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
