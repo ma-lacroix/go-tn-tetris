@@ -165,6 +165,7 @@ func (g *Game) HandleMainGameInput() {
 }
 
 func (g *Game) HandleLastExplosion() {
+	// TODO: turn this into a proper handler and slow down the animations
 	g.PlayingArea.fallenBlocks.MoveExplodingBlocks()
 	if len(g.PlayingArea.fallenBlocks.blocksToAnimate) == 0 {
 		g.gameOver.isActive = true
@@ -176,6 +177,7 @@ func (g *Game) HandleGameOverScreen() {
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
 		g.Reset(g.ScreenWidth, g.ScreenHeight)
 		g.moveCooldown = g.moveCooldownMax
+		g.gameOver.isActive = false
 		g.Menu.isActive = true
 	}
 }
