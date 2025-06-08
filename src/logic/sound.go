@@ -11,21 +11,21 @@ import (
 
 type SoundBank struct {
 	ctx     *audio.Context
-	sfxData map[string][]byte // raw sound data
+	sfxData map[string][]byte
 }
 
 func NewSoundBank(ctx *audio.Context) *SoundBank {
-	soundPaths := [14]string{"n_all_right", "n_explode2", "n_impact1", "n_pause", "n_switch",
+	soundPaths := [15]string{"n_all_right", "n_explode2", "n_impact1", "n_pause", "n_switch",
 		"n_enter", "n_gameOver", "n_impact2", "n_rotate", "n_yyy", "n_explode1", "n_good",
-		"n_onbc", "n_start"}
+		"n_onbc", "n_start", "n_afterburner"}
 	sfxData := make(map[string][]byte)
-	for sound := range soundPaths {
+	for _, sound := range soundPaths {
 		path := fmt.Sprintf("../media/sound/%s.wav", sound)
 		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatalf("Failed to load %s: %v", path, err)
 		}
-		key := fmt.Sprintf("%d", sound)
+		key := fmt.Sprintf("%s", sound)
 		sfxData[key] = data
 	}
 	return &SoundBank{
@@ -34,7 +34,7 @@ func NewSoundBank(ctx *audio.Context) *SoundBank {
 	}
 }
 
-func (sb *SoundBank) Play(name string) {
+func (sb *SoundBank) Play(name string, volume float64) {
 	data, ok := sb.sfxData[name]
 	if !ok {
 		log.Printf("Sound %s not found", name)
@@ -50,5 +50,6 @@ func (sb *SoundBank) Play(name string) {
 		log.Printf("Failed to create player for %s: %v", name, err)
 		return
 	}
+	player.SetVolume(volume)
 	player.Play()
 }

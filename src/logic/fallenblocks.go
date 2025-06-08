@@ -160,7 +160,7 @@ func (f *FallenBlocks) DrawExplodingBlocks(screen *ebiten.Image) {
 		for _, block := range f.blocksToAnimate {
 			f.AddPieceTexture(screen, block)
 			// adding more debris
-			for i := 50; i > 0; i-- {
+			for i := 25; i > 0; i-- {
 				vector.DrawFilledRect(screen,
 					block.x0+float32(i)*(25*Randomizer())*block.direction,
 					block.y0-float32(i)*25,

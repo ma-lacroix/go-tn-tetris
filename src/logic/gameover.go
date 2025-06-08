@@ -31,9 +31,9 @@ func NewGameOver(ScreenWidth int, ScreenHeight int) *GameOver {
 }
 
 func (g *GameOver) FlickerBackground() {
-	g.rotationAngle += 0.5
+	g.rotationAngle += 0.03
 	cx, cy := float64(-100), float64(-100)
-	radius := 60.0
+	radius := 15.0
 
 	// Compute new position
 	g.x0 = cx + math.Cos(g.rotationAngle)*radius
