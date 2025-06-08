@@ -145,12 +145,12 @@ func (f *FallenBlocks) MoveExplodingBlocks() {
 	f.removeOutOfBoundBlocks()
 	if len(f.blocksToAnimate) != 0 {
 		for i := range f.blocksToAnimate {
-			f.blocksToAnimate[i].alpha += 0.0005
-			x := float32(amplitudeX * math.Sin(-float64(f.blocksToAnimate[i].alpha*Randomizer())))
-			y := float32(amplitudeY * math.Sin(float64(f.blocksToAnimate[i].alpha)))
-			f.blocksToAnimate[i].x0 += x * f.blocksToAnimate[i].direction
+			f.blocksToAnimate[i].alpha += 0.01
+			x := float32(amplitudeX * 0.1 * math.Sin(-float64(f.blocksToAnimate[i].alpha)))
+			y := float32(amplitudeY * 0.1 * math.Sin(float64(f.blocksToAnimate[i].alpha)))
+			f.blocksToAnimate[i].x0 += x * f.blocksToAnimate[i].direction * Randomizer()
 			f.blocksToAnimate[i].y0 += y
-			f.blocksToAnimate[i].rotation += float64(Randomizer())
+			f.blocksToAnimate[i].rotation += float64(Randomizer()) * 0.1
 		}
 	}
 }
@@ -162,10 +162,10 @@ func (f *FallenBlocks) DrawExplodingBlocks(screen *ebiten.Image) {
 			// adding more debris
 			for i := 50; i > 0; i-- {
 				vector.DrawFilledRect(screen,
-					block.x0+float32(i)*(30*Randomizer())*block.direction,
-					block.y0-float32(i)*(30*Randomizer()),
-					block.bx*0.25,
-					block.by*0.25,
+					block.x0+float32(i)*(25*Randomizer())*block.direction,
+					block.y0-float32(i)*25,
+					block.bx*0.25*Randomizer(),
+					block.by*0.25*Randomizer(),
 					color.RGBA{uint8(5 * i), uint8(5 * i), uint8(5 * i), 255}, true)
 			}
 		}
@@ -176,7 +176,7 @@ func (f *FallenBlocks) AddPieceTexture(screen *ebiten.Image, block FallenBlock) 
 	tileWidth := blockTexturesX / blockTexturesLenX
 	tileHeight := blockTexturesY / blockTexturesLenY
 	sx := tileWidth * block.imagePositions[0]
-	sy := tileHeight * block.imagePositions[1] // ✅ fixed index
+	sy := tileHeight * block.imagePositions[1]
 	rect := image.Rect(sx, sy, sx+tileWidth, sy+tileHeight)
 	cropped := f.blockPiecesImage.SubImage(rect).(*ebiten.Image)
 	op := &ebiten.DrawImageOptions{}

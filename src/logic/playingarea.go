@@ -126,15 +126,19 @@ func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
 	vector.StrokeLine(screen, p.x1, p.y1, p.x1, p.y0, strokeWidth, borderColor, true)
 }
 
-func (p *PlayingArea) Draw(screen *ebiten.Image, superDrop bool) {
+func (p *PlayingArea) Draw(screen *ebiten.Image, superDrop bool, skipDrawPlayer bool) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(imageScaleX, imageScaleY)
 	op.GeoM.Translate(float64(p.x0), float64(p.y0))
 	screen.DrawImage(p.backgroundImage, op)
-	if superDrop {
-		p.playerPiece.DrawSuperDrop(screen, p)
+	if !skipDrawPlayer {
+		if superDrop {
+			p.playerPiece.DrawSuperDrop(screen, p)
+		}
+		if p.isActive {
+			p.playerPiece.Draw(screen, p)
+		}
 	}
-	p.playerPiece.Draw(screen, p)
 	p.fallenBlocks.Draw(screen)
 	p.fallenBlocks.DrawExplodingBlocks(screen)
 }

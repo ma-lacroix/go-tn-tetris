@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	menuOptions = []string{"Easy Peasy", "Dude, Seriously?"}
+	menuOptions = []string{"Easy Peasy", "Dude, Seriously?", "Hell no. Just no."}
 	selected    = 0
 )
 

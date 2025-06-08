@@ -20,6 +20,7 @@ type Message struct {
 type Messages struct {
 	allMessages [4]Message
 	font        font.Face
+	active      bool
 }
 
 func NewMessages() *Messages {
@@ -34,18 +35,20 @@ func NewMessages() *Messages {
 
 func (m *Messages) ActivateMessage(index int32) {
 	m.allMessages[index-1].active = true
+	m.active = true
 }
 
 func (m *Messages) MoveActiveMessage() {
 	for i := 0; i < len(m.allMessages); i++ {
 		if m.allMessages[i].active {
 			// reset message position
-			if m.allMessages[i].pos[0] <= -2500 {
+			if m.allMessages[i].pos[0] <= -2000 {
 				m.allMessages[i].active = false
+				m.active = false
 				m.allMessages[i].pos[0] = startingX
 				m.allMessages[i].pos[1] = startingY
 			}
-			m.allMessages[i].pos[0] -= 25
+			m.allMessages[i].pos[0] -= 35
 			m.allMessages[i].pos[1] += 5
 		}
 	}
@@ -53,7 +56,7 @@ func (m *Messages) MoveActiveMessage() {
 
 func (m *Messages) Draw(screen *ebiten.Image) {
 	for _, message := range m.allMessages {
-		for i := 6; i > 0; i-- {
+		for i := 10; i > 0; i-- {
 			if message.active {
 				text.Draw(screen, message.msg, m.font, message.pos[0]+int(Randomizer()*float32(i*20)), message.pos[1]-i*10,
 					color.RGBA{uint8(25 * i), uint8(1 * i), uint8(5 * i), uint8(240 / i)})

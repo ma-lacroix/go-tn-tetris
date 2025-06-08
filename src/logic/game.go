@@ -5,6 +5,7 @@ package logic
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	_ "image/png"
 	"time"
 )
@@ -18,6 +19,10 @@ const (
 	blockImageScaleY = 0.21
 )
 
+var (
+	ctx = audio.NewContext(44100)
+)
+
 type Game struct {
 	ScreenWidth       int
 	ScreenHeight      int
@@ -29,6 +34,7 @@ type Game struct {
 	moveCooldown      int
 	moveCooldownMax   int
 	lastDropTime      time.Time
+	dropFactor        int
 	dropInterval      time.Duration
 	animationTime     time.Time
 	animationInterval time.Duration
@@ -36,11 +42,13 @@ type Game struct {
 	Messages          *Messages
 	superDrop         bool
 	gameOver          *GameOver
+	soundBank         *SoundBank
 }
 
 func NewGame(width, height int) *Game {
 	nextPieceIndex := RandomPieceIndex()
 	bgImage := loadImage("../media/images/b_background.png")
+	dropFactor := 1000
 	return &Game{
 		ScreenWidth:       width,
 		ScreenHeight:      height,
@@ -50,12 +58,22 @@ func NewGame(width, height int) *Game {
 		ScoreBoard:        NewScoreBoard(width, height),
 		PlayingArea:       NewPlayingArea(width, height),
 		moveCooldownMax:   10,
-		dropInterval:      1000 * time.Millisecond,
+		dropFactor:        1000,
+		dropInterval:      time.Duration(dropFactor) * time.Millisecond,
 		animationInterval: 10 * time.Millisecond,
 		backgroundImage:   bgImage,
 		Messages:          NewMessages(),
 		superDrop:         false,
 		gameOver:          NewGameOver(width, height),
+		soundBank:         NewSoundBank(ctx),
+	}
+}
+
+func (g *Game) increaseDifficulty(score int32) {
+	if score > 0 && score%5 == 0 && g.dropFactor >= 100 {
+		newDropFactor := g.dropFactor - 500
+		g.dropInterval = time.Duration(newDropFactor) * time.Millisecond
+		g.dropFactor = newDropFactor
 	}
 }
 
@@ -88,21 +106,28 @@ func (g *Game) HandleMenuInput() {
 	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 		switch selected {
 		case 0:
-			fmt.Println("Starting game...")
+			fmt.Println("Easy")
 			g.Menu.isActive = false
 		case 1:
-			fmt.Println("Options selected")
+			fmt.Println("Medium")
 			g.Menu.isActive = false
-			g.dropInterval = 500 * time.Millisecond
+			g.dropInterval = 750 * time.Millisecond
+		case 2:
+			fmt.Println("Hard")
+			g.Menu.isActive = false
+			g.dropInterval = 400 * time.Millisecond
 		}
 	}
 
 }
 
 func (g *Game) HandleMainGameInput() {
+	g.Messages.MoveActiveMessage()
+	if g.Messages.active {
+		return
+	}
 	if !g.PlayingArea.CanPlaceNewPiece() {
 		g.PlayingArea.fallenBlocks.markAllAsAnimated()
-		// TODO: player piece must disappear
 		g.PlayingArea.StopGame()
 	}
 	g.superDrop = false
@@ -111,6 +136,7 @@ func (g *Game) HandleMainGameInput() {
 		g.moveCooldown--
 		return
 	}
+	g.increaseDifficulty(g.ScoreBoard.score)
 	if time.Since(g.lastDropTime) > g.dropInterval {
 		down := [2]int{0, 1}
 		if g.PlayingArea.playerPiece.CollisionDetection(down, &g.PlayingArea.board) {
@@ -135,6 +161,7 @@ func (g *Game) HandleMainGameInput() {
 		down = true
 	}
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		g.soundBank.Play("n_rotate")
 		g.PlayingArea.playerPiece.Rotation(&g.PlayingArea.board)
 		g.moveCooldown = g.moveCooldownMax
 		return
@@ -151,7 +178,7 @@ func (g *Game) HandleMainGameInput() {
 			g.moveCooldown = g.moveCooldownMax
 		}
 	}
-	if g.PlayingArea.playerPiece.ShouldLock(rows, 500*time.Millisecond, &g.PlayingArea.board) {
+	if g.PlayingArea.playerPiece.ShouldLock(rows, 300*time.Millisecond, &g.PlayingArea.board) {
 		g.PlayingArea.ResetPlayerPiece(g.NextPieceIndex)
 		g.NextPieceIndex = RandomPieceIndex()
 		g.NextPieceArea.Update(g.NextPieceIndex)
@@ -161,7 +188,7 @@ func (g *Game) HandleMainGameInput() {
 			g.PlayingArea.fallenBlocks.ResetRowsToRemove()
 		}
 	}
-	g.Messages.MoveActiveMessage()
+	move = [2]int{0, 0}
 }
 
 func (g *Game) HandleLastExplosion() {
@@ -206,7 +233,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(imageScaleX, imageScaleY)
 		screen.DrawImage(g.backgroundImage, op)
-		g.PlayingArea.Draw(screen, g.superDrop)
+		g.PlayingArea.Draw(screen, g.superDrop, g.Messages.active)
 		g.NextPieceArea.Draw(screen)
 		g.ScoreBoard.Draw(screen)
 		g.Messages.Draw(screen)
@@ -216,7 +243,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(imageScaleX, imageScaleY)
 		screen.DrawImage(g.backgroundImage, op)
-		g.PlayingArea.Draw(screen, g.superDrop)
+		g.PlayingArea.Draw(screen, g.superDrop, false)
 		g.NextPieceArea.Draw(screen)
 		g.ScoreBoard.Draw(screen)
 	}
