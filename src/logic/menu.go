@@ -19,11 +19,11 @@ type Menu struct {
 }
 
 func NewMenu() *Menu {
-	backgroundImage := loadImage("../media/images/b_intro.png")
+	backgroundImage := loadImage("b_intro.png")
 	return &Menu{
 		isActive:        true,
 		backgroundImage: backgroundImage,
-		font:            LoadFont("../media/font/Excludedi.ttf", fontsize/5),
+		font:            LoadFont("media/font/Excludedi.ttf", fontsize/5),
 	}
 }
 

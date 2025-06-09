@@ -21,7 +21,7 @@ func NewMusicBankBank(ctx *audio.Context) *MusicBank {
 	players := make(map[string]*audio.Player)
 
 	for _, sound := range soundPaths {
-		path := fmt.Sprintf("../media/music/%s.ogg", sound)
+		path := fmt.Sprintf("media/music/%s.ogg", sound)
 		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatalf("Failed to load %s: %v", path, err)

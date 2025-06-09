@@ -33,7 +33,7 @@ func NewPlayingArea(ScreenWidth int, ScreenHeight int) *PlayingArea {
 			grid[i][j] = true
 		}
 	}
-	backgroundImage := loadImage("../media/images/b_playing_area.png")
+	backgroundImage := loadImage("b_playing_area.png")
 	return &PlayingArea{
 		x0:              paddingX - offSet*1.55,
 		y0:              paddingY + offSet*2.2,

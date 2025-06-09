@@ -30,7 +30,7 @@ func NewMessages() *Messages {
 		Message{"YEAH YEAH YEAH!!!", [2]int{startingX, startingY}, false},
 		Message{"OW NOW BROWN COW!!!!", [2]int{startingX, startingY}, false},
 	},
-		font: LoadFont("../media/font/Excludedi.ttf", fontsize)}
+		font: LoadFont("media/font/Excludedi.ttf", fontsize)}
 }
 
 func (m *Messages) ActivateMessage(index int32) {

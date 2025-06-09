@@ -21,7 +21,7 @@ func NewNextPieceArea(NextPieceIndex int, ScreenWidth int, ScreenHeight int) *Ne
 	paddingY := float32(ScreenWidth / 10)
 	bp := NewBlockPieces()
 	te := bp.GenerateNewPiece(NextPieceIndex)
-	backgroundImage := loadImage("../media/images/b_next.png")
+	backgroundImage := loadImage("b_next.png")
 	return &NextPieceArea{
 		x0:              paddingX + offSet*2.7,
 		y0:              paddingY + offSet*4.5,

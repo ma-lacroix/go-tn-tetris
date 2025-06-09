@@ -1,6 +1,8 @@
 package logic
 
 import (
+	"bytes"
+	"embed"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
@@ -11,17 +13,19 @@ import (
 	"time"
 )
 
-func loadImage(path string) *ebiten.Image {
-	f, err := os.Open(path)
-	if err != nil {
-		log.Fatalf("failed to open image %s: %v", path, err)
-	}
-	defer f.Close()
+var imagesFS embed.FS
 
-	img, _, err := image.Decode(f)
+func loadImage(path string) *ebiten.Image {
+	data, err := imagesFS.ReadFile("../media/images/" + path)
+	if err != nil {
+		log.Fatalf("failed to read image %s: %v", path, err)
+	}
+
+	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
 		log.Fatalf("failed to decode image %s: %v", path, err)
 	}
+
 	return ebiten.NewImageFromImage(img)
 }
 

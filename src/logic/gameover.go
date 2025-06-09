@@ -16,8 +16,8 @@ type GameOver struct {
 }
 
 func NewGameOver(ScreenWidth int, ScreenHeight int) *GameOver {
-	backgroundImage := loadImage("../media/images/b_game_over_layer.png")
-	backgroundLayover := loadImage("../media/images/b_game_over_text.png")
+	backgroundImage := loadImage("b_game_over_layer.png")
+	backgroundLayover := loadImage("b_game_over_text.png")
 	return &GameOver{
 		isActive:          false,
 		backgroundImage:   backgroundImage,
@@ -34,7 +34,6 @@ func (g *GameOver) FlickerBackground() {
 	g.rotationAngle += 0.03
 	cx, cy := float64(-100), float64(-100)
 	radius := 15.0
-
 	// Compute new position
 	g.x0 = cx + math.Cos(g.rotationAngle)*radius
 	g.y0 = cy + math.Sin(g.rotationAngle)*radius
