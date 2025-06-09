@@ -41,14 +41,15 @@ func (p *NextPieceArea) Update(newPieceIndex int) {
 
 func (p *NextPieceArea) DrawBackground(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, p.x0+80, p.y0, p.x1*0.45, p.y1*0.12,
-		color.RGBA{210, 230, 245, 0xFF}, false)
+		color.RGBA{0, 0, 0, 0xFF}, false)
 }
 
-func (p *NextPieceArea) Draw(screen *ebiten.Image) {
+func (p *NextPieceArea) Draw(screen *ebiten.Image, score int32) {
 	p.DrawBackground(screen)
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(imageScaleX, imageScaleY)
-	op.GeoM.Translate(float64(p.x0+80), float64(p.y0))
+	op.GeoM.Rotate(float64(score) / 100)
+	op.GeoM.Translate(float64(p.x0+80+float32(score)), float64(p.y0))
 	screen.DrawImage(p.backgroundImage, op)
 	for _, pos := range p.tetronimo {
 		vector.DrawFilledRect(screen,

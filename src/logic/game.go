@@ -75,7 +75,7 @@ func NewGame(width, height int) *Game {
 
 func (g *Game) increaseDifficulty(score int32) {
 	if score > 0 && score%2 == 0 && g.dropFactor >= 100 {
-		newDropFactor := g.dropFactor - 50
+		newDropFactor := g.dropFactor - 40
 		g.dropInterval = time.Duration(newDropFactor) * time.Millisecond
 		g.dropFactor = newDropFactor
 	}
@@ -89,6 +89,7 @@ func (g *Game) Reset(width int, height int) {
 	g.PlayingArea = NewPlayingArea(g.ScreenWidth, g.ScreenHeight)
 	g.gameOver.isActive = false
 	g.Menu.isActive = true
+	g.ScoreBoard = NewScoreBoard(width, height)
 }
 
 func (g *Game) HandleMenuInput() {
@@ -193,24 +194,24 @@ func (g *Game) HandleMainGameInput() {
 		}
 	}
 	if g.PlayingArea.playerPiece.ShouldLock(rows, 300*time.Millisecond, &g.PlayingArea.board) {
-		g.soundBank.Play("n_impact2", 1)
+		g.soundBank.Play("n_impact2", 0.8)
 		g.PlayingArea.ResetPlayerPiece(g.NextPieceIndex)
 		g.NextPieceIndex = RandomPieceIndex()
 		g.NextPieceArea.Update(g.NextPieceIndex)
 		g.ScoreBoard.Update(g.PlayingArea.fallenBlocks.rowsRemoved)
 		g.increaseDifficulty(g.ScoreBoard.score)
 		if g.PlayingArea.fallenBlocks.rowsRemoved > 0 {
-			g.soundBank.Play("n_explode1", 1)
+			g.soundBank.Play("n_explode2", 1)
 			g.Messages.ActivateMessage(g.PlayingArea.fallenBlocks.rowsRemoved)
 			switch g.PlayingArea.fallenBlocks.rowsRemoved {
 			case 1:
-				g.soundBank.Play("n_good", 1)
+				g.soundBank.Play("n_good", 0.8)
 			case 2:
-				g.soundBank.Play("n_all_right", 1)
+				g.soundBank.Play("n_all_right", 0.8)
 			case 3:
-				g.soundBank.Play("n_yyy", 1)
+				g.soundBank.Play("n_yyy", 0.8)
 			case 4:
-				g.soundBank.Play("n_onbc", 1)
+				g.soundBank.Play("n_onbc", 0.8)
 			}
 			g.PlayingArea.fallenBlocks.ResetRowsToRemove()
 		}
@@ -239,10 +240,10 @@ func (g *Game) HandleGameOverScreen() {
 
 func (g *Game) Update() error {
 	if g.Menu.isActive {
-		g.musicBank.Play("s_menu", 0.6)
+		g.musicBank.Play("s_menu", 0.5)
 		g.HandleMenuInput()
 	} else if g.PlayingArea.isActive {
-		g.musicBank.Play("s_playing", 0.6)
+		g.musicBank.Play("s_playing", 0.5)
 		g.HandleMainGameInput()
 	} else if g.gameOver.isActive {
 		g.HandleGameOverScreen()
@@ -263,9 +264,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(imageScaleX, imageScaleY)
 		screen.DrawImage(g.backgroundImage, op)
-		g.PlayingArea.Draw(screen, g.superDrop, g.Messages.active)
-		g.NextPieceArea.Draw(screen)
-		g.ScoreBoard.Draw(screen)
+		g.PlayingArea.Draw(screen, g.superDrop, g.Messages.active, g.ScoreBoard.score)
+		g.NextPieceArea.Draw(screen, g.ScoreBoard.score)
+		g.ScoreBoard.Draw(screen, g.ScoreBoard.score)
 		g.Messages.Draw(screen)
 	} else if g.gameOver.isActive {
 		g.gameOver.Draw(screen)
@@ -273,9 +274,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(imageScaleX, imageScaleY)
 		screen.DrawImage(g.backgroundImage, op)
-		g.PlayingArea.Draw(screen, g.superDrop, false)
-		g.NextPieceArea.Draw(screen)
-		g.ScoreBoard.Draw(screen)
+		g.PlayingArea.Draw(screen, g.superDrop, false, g.ScoreBoard.score)
+		g.NextPieceArea.Draw(screen, g.ScoreBoard.score)
+		g.ScoreBoard.Draw(screen, g.ScoreBoard.score)
 	}
 }
 

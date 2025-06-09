@@ -41,15 +41,16 @@ func (s *ScoreBoard) Update(newLines int32) {
 
 func (s *ScoreBoard) DrawBackground(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, s.x0+80, s.y0, s.x1*0.45, s.y1*0.12,
-		color.RGBA{210, 230, 245, 0xFF}, false)
+		color.RGBA{0, 0, 0, 0xFF}, false)
 }
 
-func (s *ScoreBoard) Draw(screen *ebiten.Image) {
+func (s *ScoreBoard) Draw(screen *ebiten.Image, score int32) {
 	s.DrawBackground(screen)
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(imageScaleX, imageScaleY)
-	op.GeoM.Translate(float64(s.x0+80), float64(s.y0-3))
+	op.GeoM.Rotate(-float64(score) / 100)
+	op.GeoM.Translate(float64(s.x0+80)+float64(score), float64(s.y0-3)+float64(score))
 	screen.DrawImage(s.backgroundImage, op)
 	text.Draw(screen, strconv.Itoa(int(s.score)), s.font, int(s.x0)+120,
-		int(s.y0)+70, color.RGBA{20, 20, 30, 255})
+		int(s.y0)+70, color.RGBA{0, 0, 0, 255})
 }

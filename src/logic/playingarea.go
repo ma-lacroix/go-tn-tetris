@@ -60,7 +60,7 @@ func (p *PlayingArea) StopGame() {
 
 func (p *PlayingArea) clearFullRowsAndShiftDown() {
 	for row := rows - 1; row >= 0; row-- {
-		if countFilledCells(p.board[row][:]) == cols {
+		if checkCompletedRows(p.board[row][:]) {
 			p.clearRow(row)
 			p.shiftRowsDown(row)
 			row++
@@ -68,14 +68,13 @@ func (p *PlayingArea) clearFullRowsAndShiftDown() {
 	}
 }
 
-func countFilledCells(row []bool) int {
-	count := 0
+func checkCompletedRows(row []bool) bool {
 	for _, v := range row {
-		if !v {
-			count++
+		if v {
+			return false
 		}
 	}
-	return count
+	return true
 }
 
 func (p *PlayingArea) clearRow(row int) {
@@ -126,10 +125,11 @@ func (p *PlayingArea) DrawBorders(screen *ebiten.Image) {
 	vector.StrokeLine(screen, p.x1, p.y1, p.x1, p.y0, strokeWidth, borderColor, true)
 }
 
-func (p *PlayingArea) Draw(screen *ebiten.Image, superDrop bool, skipDrawPlayer bool) {
+func (p *PlayingArea) Draw(screen *ebiten.Image, superDrop bool, skipDrawPlayer bool, score int32) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(imageScaleX, imageScaleY)
-	op.GeoM.Translate(float64(p.x0), float64(p.y0))
+	op.GeoM.Rotate(float64(score) / 200)
+	op.GeoM.Translate(float64(p.x0), float64(p.y0)-float64(score))
 	screen.DrawImage(p.backgroundImage, op)
 	if !skipDrawPlayer {
 		if superDrop {
