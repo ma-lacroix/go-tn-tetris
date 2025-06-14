@@ -1,38 +1,36 @@
 package logic
 
 import (
+	"bytes"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 	"image"
 	"log"
 	"math/rand"
-	"os"
 	"time"
 )
 
 func loadImage(path string) *ebiten.Image {
-	f, err := os.Open(path)
+	data, err := imageFS.ReadFile(path)
 	if err != nil {
-		log.Fatalf("failed to open image %s: %v", path, err)
+		log.Fatalf("Failed to read embedded image %s: %v", path, err)
 	}
-	defer f.Close()
-
-	img, _, err := image.Decode(f)
+	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
-		log.Fatalf("failed to decode image %s: %v", path, err)
+		log.Fatalf("Failed to decode image %s: %v", path, err)
 	}
 	return ebiten.NewImageFromImage(img)
 }
 
 func LoadFont(path string, size float64) font.Face {
-	fontBytes, err := os.ReadFile(path)
+	fontBytes, err := fontFS.ReadFile(path)
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to read embedded font %s: %v", path, err)
 	}
 	tt, err := opentype.Parse(fontBytes)
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to parse font: %v", err)
 	}
 	face, err := opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    size,
@@ -40,7 +38,7 @@ func LoadFont(path string, size float64) font.Face {
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to create font face: %v", err)
 	}
 	return face
 }

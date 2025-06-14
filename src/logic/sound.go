@@ -2,11 +2,11 @@ package logic
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"log"
-	"os"
 )
 
 type SoundBank struct {
@@ -14,19 +14,23 @@ type SoundBank struct {
 	sfxData map[string][]byte
 }
 
+//go:embed media/sound/*
+var soundFS embed.FS
+
 func NewSoundBank(ctx *audio.Context) *SoundBank {
-	soundPaths := [15]string{"n_all_right", "n_explode2", "n_impact1", "n_pause", "n_switch",
-		"n_enter", "n_gameOver", "n_impact2", "n_rotate", "n_yyy", "n_explode1", "n_good",
-		"n_onbc", "n_start", "n_afterburner"}
+	soundPaths := []string{
+		"n_all_right", "n_explode2", "n_impact1", "n_pause", "n_switch",
+		"n_enter", "n_gameOver", "n_impact2", "n_rotate", "n_yyy",
+		"n_explode1", "n_good", "n_onbc", "n_start", "n_afterburner",
+	}
 	sfxData := make(map[string][]byte)
 	for _, sound := range soundPaths {
 		path := fmt.Sprintf("media/sound/%s.wav", sound)
-		data, err := os.ReadFile(path)
+		data, err := soundFS.ReadFile(path)
 		if err != nil {
-			log.Fatalf("Failed to load %s: %v", path, err)
+			log.Fatalf("Failed to load embedded sound %s: %v", path, err)
 		}
-		key := fmt.Sprintf("%s", sound)
-		sfxData[key] = data
+		sfxData[sound] = data
 	}
 	return &SoundBank{
 		ctx:     ctx,

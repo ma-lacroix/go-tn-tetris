@@ -3,6 +3,7 @@ package logic
 // This source file handles the main game loop and user input
 
 import (
+	"embed"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -22,6 +23,12 @@ const (
 var (
 	ctx = audio.NewContext(44100)
 )
+
+//go:embed media/images/*
+var imageFS embed.FS
+
+//go:embed media/font/*
+var fontFS embed.FS
 
 type Game struct {
 	ScreenWidth       int

@@ -2,11 +2,11 @@ package logic
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"log"
-	"os"
 )
 
 type MusicBank struct {
@@ -15,6 +15,9 @@ type MusicBank struct {
 	players map[string]*audio.Player
 }
 
+//go:embed media/music/*
+var musicFS embed.FS
+
 func NewMusicBankBank(ctx *audio.Context) *MusicBank {
 	soundPaths := [2]string{"s_menu", "s_playing"}
 	sfxData := make(map[string][]byte)
@@ -22,7 +25,7 @@ func NewMusicBankBank(ctx *audio.Context) *MusicBank {
 
 	for _, sound := range soundPaths {
 		path := fmt.Sprintf("media/music/%s.ogg", sound)
-		data, err := os.ReadFile(path)
+		data, err := musicFS.ReadFile(path)
 		if err != nil {
 			log.Fatalf("Failed to load %s: %v", path, err)
 		}
