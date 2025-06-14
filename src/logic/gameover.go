@@ -16,8 +16,8 @@ type GameOver struct {
 }
 
 func NewGameOver(ScreenWidth int, ScreenHeight int) *GameOver {
-	backgroundImage := loadImage("../media/images/b_game_over_layer.png")
-	backgroundLayover := loadImage("../media/images/b_game_over_text.png")
+	backgroundImage := loadImage("media/images/b_game_over_layer.png")
+	backgroundLayover := loadImage("media/images/b_game_over_text.png")
 	return &GameOver{
 		isActive:          false,
 		backgroundImage:   backgroundImage,

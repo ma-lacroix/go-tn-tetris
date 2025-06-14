@@ -33,7 +33,7 @@ type FallenBlocks struct {
 }
 
 func NewFallenBlocks() *FallenBlocks {
-	blockPiecesImage := loadImage("../media/images/p_tetris_blocks_1.png")
+	blockPiecesImage := loadImage("media/images/p_tetris_blocks_1.png")
 	return &FallenBlocks{
 		rowsRemoved:      0,
 		blockPiecesImage: blockPiecesImage,

@@ -49,7 +49,7 @@ type Game struct {
 
 func NewGame(width, height int) *Game {
 	nextPieceIndex := RandomPieceIndex()
-	bgImage := loadImage("../media/images/b_background.png")
+	bgImage := loadImage("media/images/b_background.png")
 	dropFactor := 1000
 	return &Game{
 		ScreenWidth:       width,

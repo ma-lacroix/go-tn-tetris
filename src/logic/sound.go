@@ -20,7 +20,7 @@ func NewSoundBank(ctx *audio.Context) *SoundBank {
 		"n_onbc", "n_start", "n_afterburner"}
 	sfxData := make(map[string][]byte)
 	for _, sound := range soundPaths {
-		path := fmt.Sprintf("../media/sound/%s.wav", sound)
+		path := fmt.Sprintf("media/sound/%s.wav", sound)
 		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatalf("Failed to load %s: %v", path, err)

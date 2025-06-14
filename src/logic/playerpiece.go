@@ -32,7 +32,7 @@ type PlayerPiece struct {
 }
 
 func NewPlayerPiece(tetronimo [4][2]int, imagePositions [4][2]int) *PlayerPiece {
-	blockPiecesImage := loadImage("../media/images/p_tetris_blocks_1.png")
+	blockPiecesImage := loadImage("media/images/p_tetris_blocks_1.png")
 	return &PlayerPiece{
 		position:         tetronimo,
 		imagePositions:   imagePositions,
