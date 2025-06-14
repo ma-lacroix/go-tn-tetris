@@ -1,18 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TNTetris</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      color: #eee;
+      font-family: "Segoe UI", sans-serif;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #loading {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    canvas {
+      display: block;
+      outline: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>TNTetris</h1>
-  <script src="wasm_exec.js"></script>
-  <script>
-    const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("gotntetris.wasm"), go.importObject).then(result => {
-      go.run(result.instance);
-    });
-  </script>
+<h1>TNTetris</h1>
+<div id="loading">Loading game, please wait...</div>
+
+<script src="wasm_exec.js"></script>
+<script>
+  const go = new Go();
+  WebAssembly.instantiateStreaming(fetch("gotntetris.wasm"), go.importObject)
+          .then(result => {
+            document.getElementById("loading").style.display = "none";
+            go.run(result.instance);
+          })
+          .catch(err => {
+            document.getElementById("loading").textContent = "Failed to load game: " + err;
+            console.error(err);
+          });
+</script>
 </body>
 </html>
-
