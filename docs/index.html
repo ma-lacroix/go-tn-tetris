@@ -9,11 +9,18 @@
       box-sizing: border-box;
     }
 
+    @font-face {
+      font-family: 'Excludedi';
+      src: url('https://raw.githubusercontent.com/ma-lacroix/go-tn-tetris/main/src/logic/media/font/Excludedi.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      font-family: "Segoe UI", sans-serif;
+      font-family: 'Excludedi', sans-serif;
     }
 
     body.has-bg {
@@ -43,6 +50,7 @@
     #playButton {
       padding: 0.6rem 1.2rem;
       font-size: 1.1rem;
+      font-family: 'Excludedi', sans-serif;
       border: none;
       border-radius: 6px;
       background-color: #33c;
