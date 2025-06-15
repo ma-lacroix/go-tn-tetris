@@ -1,4 +1,4 @@
-module github.com/ma-lacroix/go-tn-tetris
+module github.com/ma-lacroix/go-tn-tetris/src
 
 go 1.23.0
 
