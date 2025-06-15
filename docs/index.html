@@ -12,20 +12,53 @@
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #111;
-      color: #eee;
-      font-family: "Segoe UI", sans-serif;
       height: 100%;
-      overflow: hidden;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body.has-bg {
+      background: url("https://raw.githubusercontent.com/ma-lacroix/tn-tetris/master/game/Resources/images/p_tetris_blocks_1.png") no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body {
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      color: #eee;
+      max-width: 90%;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    #playButton {
+      padding: 0.6rem 1.2rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #33c;
+      color: white;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    #playButton:hover {
+      background-color: #55e;
     }
 
     #loading {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       margin-top: 1rem;
+      display: none;
     }
 
     canvas {
@@ -34,28 +67,48 @@
     }
   </style>
 </head>
-<body>
-<h1>TNTetris</h1>
-<div id="loading">Loading game, please wait...</div>
+<body class="has-bg">
+<div class="overlay" id="overlay">
+  <h1>TNTetris</h1>
+  <div id="mobileBlock"></div>
+  <button id="playButton">Play Game</button>
+  <div id="loading">Loading game, please wait...</div>
+</div>
 
 <script src="wasm_exec.js"></script>
 <script>
   function isMobileOrTablet() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
+
+  const mobileBlock = document.getElementById("mobileBlock");
+  const playButton = document.getElementById("playButton");
+  const loadingMsg = document.getElementById("loading");
+  const overlay = document.getElementById("overlay");
+
   if (isMobileOrTablet()) {
-    document.getElementById("loading").textContent = "This game is only available on desktop browsers.";
+    playButton.style.display = "none";
+    mobileBlock.textContent = "This game is only available on desktop browsers.";
   } else {
-    const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("gotntetris.wasm"), go.importObject)
-            .then(result => {
-              document.getElementById("loading").style.display = "none";
-              go.run(result.instance);
-            })
-            .catch(err => {
-              document.getElementById("loading").textContent = "Failed to load game: " + err;
-              console.error(err);
-            });
+    playButton.addEventListener("click", () => {
+      playButton.style.display = "none";
+      loadingMsg.style.display = "block";
+
+      const go = new Go();
+      WebAssembly.instantiateStreaming(fetch("gotntetris.wasm"), go.importObject)
+              .then(result => {
+                // Hide overlay and background
+                overlay.style.display = "none";
+                document.body.classList.remove("has-bg");
+                loadingMsg.style.display = "none";
+
+                go.run(result.instance);
+              })
+              .catch(err => {
+                loadingMsg.textContent = "Failed to load game: " + err;
+                console.error(err);
+              });
+    });
   }
 </script>
 </body>
