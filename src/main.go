@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/ma-lacroix/go-tn-tetris/logic"
 	"log"
-	"malacroix/tntetris/logic"
 )
 
 const (
